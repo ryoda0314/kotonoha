@@ -1,0 +1,33 @@
+{
+  "make-email.1": {
+    "src": "app/make-email.1.mp3",
+    "seconds": 1.56
+  },
+  "make-email.2": {
+    "src": "app/make-email.2.mp3",
+    "seconds": 3.216
+  },
+  "make-email.3": {
+    "src": "app/make-email.3.mp3",
+    "seconds": 2.928
+  },
+  "scene-going-out.line": {
+    "src": "app/scene-going-out.line.mp3",
+    "seconds": 2.688
+  },
+  "nora.fair": {
+    "src": "voice/nora.fair.56fd8c22.mp3",
+    "text": "Totally fair. Rest up! Maybe next Friday, then?",
+    "seconds": 4.152
+  },
+  "nora.watch": {
+    "src": "voice/nora.watch.0289b2bf.mp3",
+    "text": "Ooh, nice. Anything you want to watch?",
+    "seconds": 2.496
+  },
+  "mia.ramen": {
+    "src": "voice/mia.ramen.e23217c3.mp3",
+    "text": "I don't feel like cooking tonight. Ramen after class?",
+    "seconds": 3.288
+  }
+}

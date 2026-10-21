@@ -98,6 +98,22 @@ borrows their look, their accounts and their way of keeping a record.
   voiced; when Google's quota keeps refusing it stops, and the same command carries on later; old
   clips are removed), then `npm test`.
 
+## The promotional film (`promo/`)
+
+- Its own Remotion 4 project (its own package.json; left out of the app's tsconfig and eslint), described in
+  `promo/README.md`. It follows feel like's way through the app, one plain sentence beside each step. Two versions:
+  `Promo` (captions only) and `PromoNarration` (Japanese narration by Gemini TTS, `promo/scripts/narration-lines.json`,
+  never over an English voice).
+- It draws the app's screens again from their CSS and copy (`promo/src/ui.tsx`, `promo/src/scenes/`): when the look or
+  the words change, change them there too. Every moment is placed from the clips' lengths (`promo/src/timeline.ts`).
+- In `promo/`:
+  - `npm run assets`: the app's clips and icon, the partners' replies voiced through `src/lib/tts.ts`, the fonts cut to
+    the film's characters.
+  - `npm run narration`: the narration.
+  - `npm run music`: synthesized, timed to each version.
+  - `npm run render` / `npm run render:narration`: written to `promo/out/`.
+  - `npm run stills -- [--id PromoNarration] <frame> ...`: frames to look at.
+
 ## Commands
 
 - `npm run dev` / `npm run build` / `npm run lint` / `npm test` (node:test, `tests/*.test.mjs`)

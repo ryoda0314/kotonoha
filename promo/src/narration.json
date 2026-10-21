@@ -1,0 +1,87 @@
+{
+  "N01": {
+    "src": "narration/N01.033712a7.wav",
+    "seconds": 3,
+    "text": "読めば分かる英語は、たくさんある。"
+  },
+  "N02": {
+    "src": "narration/N02.0de97047.wav",
+    "seconds": 3.9,
+    "text": "なのに、いざ言おうとすると、出てこない。"
+  },
+  "N03": {
+    "src": "narration/N03.06d76e74.wav",
+    "seconds": 0.92,
+    "text": "ことのは。"
+  },
+  "N04": {
+    "src": "narration/N04.e1e58b4b.wav",
+    "seconds": 3.59,
+    "text": "借りた言葉が、自分の言葉になるまで。"
+  },
+  "N05": {
+    "src": "narration/N05.caf0a1ba.wav",
+    "seconds": 1.6,
+    "text": "入口は三つ。"
+  },
+  "N06": {
+    "src": "narration/N06.1ce7357f.wav",
+    "seconds": 2.89,
+    "text": "そのときの気分で、どこからでも。"
+  },
+  "N07": {
+    "src": "narration/N07.32cd8a4f.wav",
+    "seconds": 3.55,
+    "text": "英語が出てこないところは、日本語のままでいい。"
+  },
+  "N08": {
+    "src": "narration/N08.7b8026c5.wav",
+    "seconds": 3.16,
+    "text": "意図はそのままに、英語に直してくれる。"
+  },
+  "N09": {
+    "src": "narration/N09.0100388b.wav",
+    "seconds": 2.88,
+    "text": "相手は、その中身に返事をする。"
+  },
+  "N10": {
+    "src": "narration/N10.c891a67d.wav",
+    "seconds": 3.92,
+    "text": "今回言えなかったところと、また使えるフレーズが残る。"
+  },
+  "N11": {
+    "src": "narration/N11.e0d898e0.wav",
+    "seconds": 2.45,
+    "text": "正解は、一つじゃない。"
+  },
+  "N12": {
+    "src": "narration/N12.22dffdc0.wav",
+    "seconds": 3.5,
+    "text": "ほかの言い方も、別の場面での使い方も。"
+  },
+  "N13": {
+    "src": "narration/N13.fd6085b4.wav",
+    "seconds": 3.35,
+    "text": "借りた表現で、自分のことを言ってみる。"
+  },
+  "N14": {
+    "src": "narration/N14.701f91bb.wav",
+    "seconds": 1.1,
+    "text": "数日後。"
+  },
+  "N15": {
+    "src": "narration/N15.8de5284c.wav",
+    "seconds": 2.83,
+    "text": "別の会話の中で、また出会う。"
+  },
+  "N16": {
+    "src": "narration/N16.210fa7b4.wav",
+    "seconds": 2.08,
+    "text": "今度は、自分から。"
+  },
+  "N17": {
+    "src": "narration/N17.6c07d42d.wav",
+    "seconds": 3.83,
+    "text": "残るのは、点数ではなく、できたこと。"
+  }
+}
