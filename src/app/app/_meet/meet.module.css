@@ -1,0 +1,33 @@
+.head { display: flex; flex-direction: column; gap: 6px; padding: 20px 0 8px; }
+.theme { margin: 0; font-size: 12.5px; font-weight: 600; color: var(--accent); }
+.title { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+.lead { margin: 0; font-size: 15px; line-height: 1.7; color: var(--ink-2); }
+.controls { display: flex; gap: 10px; padding-top: 12px; }
+.hint { margin: 8px 0 0; font-size: 13px; line-height: 1.7; color: var(--muted); }
+
+/* The lines fall in from above and pile up, as in ことのあめ. */
+.lines { list-style: none; margin: 0; padding: 12px 0 8px; display: flex; flex-direction: column; gap: 18px; }
+.line { display: flex; flex-direction: column; gap: 4px; animation: fall 0.55s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+.who { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
+.lineRow { display: flex; align-items: flex-start; gap: 10px; }
+.text { flex: 1; min-width: 0; margin: 0; font-size: 19px; line-height: 1.6; }
+.ja { margin: 0; font-size: 14px; color: var(--muted); line-height: 1.7; }
+.reveal {
+  align-self: flex-start; border: 0; background: none; padding: 2px 0; color: var(--muted); font-size: 13px; cursor: pointer;
+  text-decoration: underline dotted; text-underline-offset: 0.3em;
+}
+@keyframes fall { from { opacity: 0; transform: translateY(-18px); } }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  display: inline-flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 8px 14px; text-align: left;
+  border: 1px solid var(--line-2); border-radius: 12px; background: var(--paper); cursor: pointer; color: var(--ink);
+}
+.chip:hover { border-color: var(--accent); }
+.chip > :first-child { font-size: 15px; font-weight: 600; }
+.chipLabel { font-size: 12px; color: var(--muted); }
+.again { border-color: var(--again-tint); background: var(--again-tint); }
+.again > :first-child { color: var(--again); }
+
+.sheetTitle { margin: 0; font-size: 17px; font-weight: 600; }
+.pick { display: flex; flex-direction: column; gap: 6px; }

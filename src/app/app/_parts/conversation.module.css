@@ -1,0 +1,68 @@
+/* A conversation: the partner's lines on the left, the learner's sentences set in on a light surface. Hairlines and
+   the surface colour separate; no bubbles' shadows. */
+.turns { list-style: none; margin: 0; padding: 8px 0 16px; display: flex; flex-direction: column; gap: 18px; }
+.compact { padding: 0; gap: 14px; }
+
+.them { display: flex; flex-direction: column; gap: 4px; animation: fall 0.45s ease-out both; }
+.who { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
+.line { display: flex; align-items: flex-start; gap: 10px; }
+.line > p { flex: 1; min-width: 0; margin: 0; }
+.text { font-size: 18px; line-height: 1.6; }
+.compact .text { font-size: 17px; }
+.ja { margin: 0; font-size: 14px; color: var(--muted); line-height: 1.7; }
+.reveal {
+  align-self: flex-start; border: 0; background: none; padding: 2px 0; color: var(--muted); font-size: 13px; cursor: pointer;
+  text-decoration: underline dotted; text-underline-offset: 0.3em;
+}
+
+.me {
+  margin-left: 24px; padding: 12px 14px; border-radius: var(--radius); background: var(--surface);
+  display: flex; flex-direction: column; gap: 6px; animation: fall 0.35s ease-out both;
+}
+.meHead { margin: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.tags { display: inline-flex; gap: 4px; }
+.tag {
+  display: inline-flex; align-items: center; min-height: 22px; padding: 0 8px; border-radius: 999px;
+  border: 1px solid var(--line-2); background: var(--paper); font-size: 12px; font-weight: 500; color: var(--muted);
+}
+.good { border-color: var(--tint); background: var(--tint); color: var(--accent); }
+.input { margin: 0; font-size: 15px; color: var(--muted); line-height: 1.6; }
+.fixed { font-size: 18px; line-height: 1.6; }
+.compact .fixed { font-size: 17px; }
+.more {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0;
+  border: 0; background: none; color: var(--accent); font-size: 13px; text-align: left; cursor: pointer;
+}
+
+.details { display: flex; flex-direction: column; gap: 14px; padding-top: 8px; border-top: 1px solid var(--line-2); }
+.details section { display: flex; flex-direction: column; gap: 6px; }
+.note { margin: 0; font-size: 14px; line-height: 1.75; color: var(--ink-2); }
+.small { margin: 0; font-size: 12.5px; line-height: 1.6; color: var(--muted); }
+.gaps { border-collapse: collapse; width: 100%; font-size: 15px; }
+.gaps td { padding: 6px 8px 6px 0; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+.gaps td:first-child { width: 42%; color: var(--ink-2); }
+.phrases, .others { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.phrase {
+  width: 100%; display: flex; align-items: center; gap: 10px; text-align: left;
+  min-height: 48px; padding: 8px 12px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--paper); cursor: pointer;
+}
+.phraseText { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.phraseText > :first-child { font-size: 15px; font-weight: 600; }
+.phraseLabel { font-size: 12.5px; color: var(--muted); }
+.phrase .tag { flex-shrink: 0; }
+.others li { display: flex; flex-direction: column; gap: 2px; }
+.others p { font-size: 16px; }
+
+.ask { display: flex; flex-direction: column; gap: 8px; padding-top: 6px; }
+.askQ { margin: 0; font-size: 15px; font-weight: 500; }
+.askOptions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.waiting { margin-left: 24px; padding: 14px; }
+.dots { display: inline-flex; gap: 6px; }
+.dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--faint); animation: drop 1.2s ease-in-out infinite; }
+.dots span:nth-child(2) { animation-delay: 0.15s; }
+.dots span:nth-child(3) { animation-delay: 0.3s; }
+
+/* Lines fall in from above, like ことのあめ's rain. */
+@keyframes fall { from { opacity: 0; transform: translateY(-10px); } }
+@keyframes drop { 0%, 100% { transform: translateY(0); opacity: 0.4; } 50% { transform: translateY(4px); opacity: 1; } }

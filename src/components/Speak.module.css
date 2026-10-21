@@ -1,0 +1,32 @@
+.button {
+  flex-shrink: 0;
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 50%;
+  border: 1px solid var(--line-2);
+  background: var(--paper);
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+}
+.sm { width: 36px; height: 36px; }
+.solid { border-color: var(--accent); background: var(--accent); color: #fff; }
+.playing { border-color: var(--accent); color: var(--accent); }
+.solid.playing { color: #fff; }
+/* While it plays a ripple spreads from the button, as in ことのあめ. */
+.playing::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  animation: ripple 1.4s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes ripple {
+  from { transform: scale(1); opacity: 0.7; }
+  to { transform: scale(1.7); opacity: 0; }
+}

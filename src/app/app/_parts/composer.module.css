@@ -1,0 +1,56 @@
+/* Stays at the bottom of the conversation, above the tab bar (which steps aside while the keyboard is up). */
+.composer {
+  position: sticky;
+  bottom: calc(55px + var(--nav-bottom));
+  z-index: 5;
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+  padding: 10px 12px 10px;
+  margin: 0 -16px;
+}
+@media (pointer: coarse) and (max-width: 719.98px) {
+  :global(body:has(textarea:focus)) .composer { bottom: 0; }
+}
+@media (min-width: 720px) {
+  .composer { bottom: 0; margin: 0; padding: 12px 0 16px; }
+}
+/* In a sheet: at the bottom of the sheet's own scrolling. */
+.composer.inSheet { bottom: -16px; margin: 0 -20px; padding: 10px 20px 14px; }
+@media (pointer: coarse) and (max-width: 719.98px) {
+  :global(body:has(textarea:focus)) .composer.inSheet { bottom: -16px; }
+}
+
+.row { display: flex; align-items: flex-end; gap: 8px; }
+.field {
+  flex: 1;
+  min-width: 0;
+  min-height: 48px;
+  max-height: 168px;
+  resize: none;
+  padding: 12px 14px;
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--paper);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.field::placeholder { color: var(--faint); font-family: var(--font-ja); font-size: 14px; }
+.icon, .send {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.icon { border: 1px solid var(--line-2); background: var(--paper); color: var(--ink); }
+.send { border: 1px solid var(--accent); background: var(--accent); color: #fff; }
+.send:disabled { opacity: 0.4; cursor: default; }
+.icon:disabled { color: var(--faint); cursor: default; }
+/* Listening: the ring follows the voice. */
+.listening { border-color: var(--accent); color: var(--accent); outline: calc(1px + var(--level, 0) * 7px) solid var(--tint); outline-offset: 0; }
+
+.status { margin: 6px 4px 0; font-size: 13px; color: var(--muted); }
+.error { color: var(--danger); }

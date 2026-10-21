@@ -1,0 +1,10 @@
+.toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 56px; padding: 8px 0;
+  border-top: 1px solid var(--line); cursor: pointer;
+}
+.toggle > span:first-child { display: flex; flex-direction: column; gap: 2px; }
+.toggleTitle { font-size: 15px; }
+.toggle input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--accent); flex-shrink: 0; }
+.choices { display: flex; gap: 6px; }
+.choices :global(.btn-quiet) { min-height: 40px; padding: 0 14px; font-size: 14px; }
+.text { margin: 0; font-size: 15px; overflow-wrap: anywhere; }

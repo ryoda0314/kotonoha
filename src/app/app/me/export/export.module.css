@@ -1,0 +1,5 @@
+.text {
+  margin: 0; padding: 16px; max-height: 60dvh; overflow: auto;
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface);
+  font-family: var(--font-ui); font-size: 13px; line-height: 1.75; white-space: pre-wrap; word-break: break-word;
+}

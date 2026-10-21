@@ -1,0 +1,41 @@
+.grown { list-style: none; margin: 0; padding: 0; }
+.grown > li { display: flex; flex-direction: column; gap: 4px; padding: 12px 0; border-top: 1px solid var(--line); }
+.grown > li:last-child { border-bottom: 1px solid var(--line); }
+.grownHead { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.grownHead > :first-child { font-size: 16px; font-weight: 600; color: var(--accent); }
+.grownLabel { font-size: 13px; color: var(--muted); }
+.grownText { margin: 0; font-size: 15px; color: var(--ink-2); }
+.grownMeta { margin: 0; font-size: 12.5px; color: var(--muted); }
+
+.stats { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.stats > div { padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius); }
+.stats dt { font-size: 12.5px; color: var(--muted); }
+.stats dd { margin: 2px 0 0; font-size: 22px; font-weight: 600; }
+@media (min-width: 720px) {
+  .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.views { display: flex; gap: 6px; flex-wrap: wrap; }
+.view {
+  min-height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--paper);
+  font-size: 13.5px; cursor: pointer; color: var(--ink);
+}
+.view[aria-pressed="true"] { border-color: var(--accent); background: var(--tint); color: var(--accent); font-weight: 600; }
+
+.kinds { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.kind { font-size: 11.5px; padding: 1px 8px; border-radius: 999px; background: var(--surface); color: var(--ink-2); }
+.own { background: var(--tint); color: var(--accent); }
+
+.gap { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; font-size: 15px; }
+.gap > svg { color: var(--faint); }
+.threadKind { display: inline-block; margin-right: 8px; font-size: 11.5px; padding: 1px 8px; border-radius: 999px; background: var(--surface); color: var(--muted); }
+
+.days { display: flex; flex-direction: column; }
+.day { padding: 12px 0; border-top: 1px solid var(--line); }
+.day:last-child { border-bottom: 1px solid var(--line); }
+.dayHead { margin: 0 0 6px; font-size: 15px; font-weight: 600; display: flex; gap: 8px; align-items: center; }
+.dayHead > span { font-size: 12px; font-weight: 500; color: var(--accent); }
+.dayList { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.dayList > div { display: flex; gap: 12px; font-size: 14px; }
+.dayList dt { flex-shrink: 0; width: 7em; color: var(--muted); }
+.dayList dd { margin: 0; }
