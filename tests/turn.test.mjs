@@ -128,3 +128,21 @@ test("the prompt names the partner and the scene, and offers what is due", () =>
   assert.match(system, /Met before.*feel like/);
   assert.match(user, /Sam: Want to see a movie\?/);
 });
+
+test("a reply is voiced sentence by sentence, short ones joined, abbreviations kept whole", async () => {
+  const { sentencesOf } = await import("../src/lib/text.ts");
+  assert.deepEqual(sentencesOf("Yeah. The beach sounds fun, but I want to keep it cheap. How about Enoshima?"), [
+    "Yeah. The beach sounds fun, but I want to keep it cheap.",
+    "How about Enoshima?",
+  ]);
+  assert.deepEqual(sentencesOf("Mt. Takao gets crowded on weekends. Let's go early, around 7 a.m. or so."), [
+    "Mt. Takao gets crowded on weekends.",
+    "Let's go early, around 7 a.m. or so.",
+  ]);
+  assert.deepEqual(sentencesOf("Sounds good to me!"), ["Sounds good to me!"]);
+  const text = "That sounds fun. If the sentences fall like rain, users could tap one to save it. What kind of sentences are you using?";
+  assert.equal(sentencesOf(text).join(" "), text);
+  const out = cleanTurn(raw({ corrected: "Sure.", reply: text }), req("Sure"), sign);
+  assert.equal(out.reply.parts.length, 3);
+  assert.equal(out.reply.parts[1].sig, sign(out.reply.parts[1].text));
+});

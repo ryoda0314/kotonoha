@@ -22,6 +22,17 @@ borrows their look, their accounts and their way of keeping a record.
   app's tables, and do not create test users there (a trigger of the old app fires on `auth.users`).
 - The prepared English is TypeScript data in `src/content/` (typed, checked by `tests/content.test.mjs`); its audio is
   static MP3 in `public/audio`, named by line id and a hash of voice and text, listed in `src/content/audio.json`.
+- Voices (`src/content/cast.ts`, `src/lib/tts.ts`): Mia, Sam and the learner's samples speak in OpenAI's voices
+  (gpt-4o-mini-tts); Leo and Nora in Google's (`google:Puck`, `google:Kore`: Gemini TTS on Vertex AI, ことのあめ's project
+  and service account, `gemini-3.1-flash-tts-preview`, a model whose per-model quota neither ことのあめ's live 2.5 Pro
+  voice nor ことのおと's 2.5 Flash scripts use). A Google take is tidied as ことのおと's clips are (`src/lib/pcm.ts`:
+  leading silence cut to 20 ms, faded end, levelled) and made again when its pace is outside `PACE_RANGE`. A Google
+  voice keeps its old OpenAI voice as `fallback`, which speaks a reply when Google refuses; prepared lines never fall
+  back (a clip is named for its voice). OpenAI speech comes back as PCM and is tidied the same way, so the two kinds
+  sound equally loud (all four voices within 0.2 dB) and start at once. A reply is voiced sentence by sentence
+  (`parts`, each signed; `sentencesOf` in `text.ts`), all asked for at once and played in turn: Gemini needs 6 s or more
+  for a whole reply, the first sentence is heard after about 3 s. A clip's name carries `VOICING` (`speech.ts`); clips
+  are cached as immutable, so bump it whenever the voicing itself changes.
 - AI is OpenAI, server-side only (`src/lib/ai.ts`), with no sign-in, so every route is limited per address and per server
   instance (`src/lib/limits.ts`, as ことのおと's `/api/hear`):
   - `/api/turn`: one sentence of the learner's. One call (`TALK_MODEL`, default gpt-5.5 at low reasoning effort) both
@@ -29,8 +40,9 @@ borrows their look, their accounts and their way of keeping a record.
     effort "none" changed the learner's meaning (夜 became "tonight" when the plan was for tomorrow).
   - `/api/other`: ほかの言い方 for a corrected sentence, or 別の場面で for a phrase the AI found; only when opened, kept in
     the record so each is asked once.
-  - `/api/say`: voices English the AI wrote (gpt-4o-mini-tts, the partner's voice), only with the signature the server gave
-    that text (`src/lib/sign.ts`), so it cannot voice anything else. Prepared lines never come here.
+  - `/api/say`: voices English the AI wrote in the partner's voice (OpenAI or Google, see above), only with the
+    signature the server gave that text (`src/lib/sign.ts`), so it cannot voice anything else. Prepared lines never come
+    here.
   - `/api/hear`: what the learner said aloud (gpt-4o-transcribe, English with Japanese mixed in), as text to check before
     sending. The recording is not kept.
 
@@ -82,7 +94,8 @@ borrows their look, their accounts and their way of keeping a record.
   what changed), `dialogues.ts` (12 for 出会う), `scenes.ts` (12, with samples and the partner's `brief`), `frames.ts`
   (4 for 話す), `cast.ts` (the four friends and their voices). Marks name an expression and the exact text of its fixed
   words in the line. Every expression must turn up in two or more conversations or scenes.
-- After changing lines: `node --env-file=.env.local scripts/generate-audio.mjs` (only new or changed lines are voiced; old
+- After changing lines or voices: `node --env-file=.env.local scripts/generate-audio.mjs` (only new or changed lines are
+  voiced; when Google's quota keeps refusing it stops, and the same command carries on later; old
   clips are removed), then `npm test`.
 
 ## Commands

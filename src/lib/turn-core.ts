@@ -6,7 +6,7 @@
 // expression is decided from their words, not from the model.
 import { EXPRESSIONS, exprById, frameById, PARTNERS, sceneById, type Expr, type PartnerId } from "../content/index.ts";
 import type { Correction, Gap, OtherWay, Phrase, PhraseUse, Span } from "./record.ts";
-import { contains, coverage, hasJapanese, inOrder, normalize, phraseKey, wordsOf } from "./text.ts";
+import { contains, coverage, hasJapanese, inOrder, normalize, phraseKey, sentencesOf, wordsOf } from "./text.ts";
 
 export type Signer = (text: string) => string;
 
@@ -100,7 +100,7 @@ export type TurnRequest = {
 
 export type TurnResult =
   | { ask: { question: string; options: string[] } }
-  | { result: Correction; reply: { text: string; ja: string; sig: string; exprs: Span[] } };
+  | { result: Correction; reply: { text: string; ja: string; sig: string; exprs: Span[]; parts: { text: string; sig: string }[] } };
 
 export type RawTurn = {
   ask: string;
@@ -236,7 +236,15 @@ export function cleanTurn(raw: RawTurn, req: TurnRequest, sign: Signer): TurnRes
 
   return {
     result: { corrected, natural: squash(corrected) === squash(req.input), note: raw.note?.trim() ?? "", gaps, phrases, sig: sign(corrected) },
-    reply: { text: reply, ja: raw.reply_ja?.trim() ?? "", sig: sign(reply), exprs: spansIn(reply, raw.reply_exprs ?? []) },
+    reply: {
+      text: reply,
+      ja: raw.reply_ja?.trim() ?? "",
+      sig: sign(reply),
+      exprs: spansIn(reply, raw.reply_exprs ?? []),
+      // Voiced sentence by sentence, so the first is heard while the rest are made (a Google voice takes 6 s or more for
+      // a whole reply); each is signed for /api/say on its own.
+      parts: sentencesOf(reply).map((text) => ({ text, sig: sign(text) })),
+    },
   };
 }
 

@@ -177,3 +177,17 @@ export async function playInTurn(items: { sound: Sound | null; text: string }[],
   }
   return true;
 }
+
+export type Item = { sound: Sound | null; text: string };
+
+/** A partner's reply as what to play: its signed sentences when it has them, else the whole text. */
+export function replyItems(turn: { text: string; sig?: string; parts?: { text: string; sig: string }[] }, voice: string): Item[] {
+  if (turn.parts?.length) return turn.parts.map((p) => ({ sound: { sig: p.sig, voice }, text: p.text }));
+  return [{ sound: turn.sig ? { sig: turn.sig, voice } : null, text: turn.text }];
+}
+
+/** Sentences asked for all at once and played one after another: the first is heard while the rest are being made. */
+export function playAll(items: Item[]): Promise<boolean> {
+  prepare(items);
+  return items.length === 1 ? play(items[0].sound, items[0].text) : playInTurn(items, undefined, 150);
+}

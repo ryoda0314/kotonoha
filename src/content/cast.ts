@@ -1,7 +1,9 @@
 import type { Partner, PartnerId, SpeakerId, ThemeId, GroupId } from "./types.ts";
 
 // The four people the learner meets and talks with: friends at a university in Tokyo, from abroad, so English is what
-// they share. Voices are OpenAI's (scripts/generate-audio.mjs and /api/say use the same ones).
+// they share. Two speak in OpenAI's voices and two in Google's (Gemini), so the same expression is heard in voices of
+// both kinds; a Google voice keeps an OpenAI one to fall back on when Google refuses (src/lib/tts.ts).
+// scripts/generate-audio.mjs and /api/say use the same voices.
 export const PARTNERS: Record<PartnerId, Partner> = {
   mia: {
     id: "mia",
@@ -16,7 +18,8 @@ export const PARTNERS: Record<PartnerId, Partner> = {
     name: "Leo",
     kana: "レオ",
     about: "デザインを学んでいる友だち。ものを作るのが好き。",
-    voice: "cedar",
+    voice: "google:Puck",
+    fallback: "cedar",
     persona: "Leo, a design student and the learner's friend. Curious and honest, likes making things, and says what he really thinks.",
   },
   sam: {
@@ -32,7 +35,8 @@ export const PARTNERS: Record<PartnerId, Partner> = {
     name: "Nora",
     kana: "ノラ",
     about: "サークルの先輩。はっきりものを言う。",
-    voice: "nova",
+    voice: "google:Kore",
+    fallback: "nova",
     persona: "Nora, an older student in the learner's club. Friendly and direct, a bit of a planner.",
   },
 };
@@ -44,6 +48,11 @@ export const VOICES: readonly string[] = [...Object.values(PARTNERS).map((p) => 
 
 export function voiceOf(who: SpeakerId): string {
   return who === "you" ? YOU_VOICE : PARTNERS[who].voice;
+}
+
+/** The OpenAI voice a Google voice falls back on (null for an OpenAI voice). */
+export function fallbackOf(voice: string): string | null {
+  return Object.values(PARTNERS).find((p) => p.voice === voice)?.fallback ?? null;
 }
 
 export const THEMES: Record<ThemeId, string> = {

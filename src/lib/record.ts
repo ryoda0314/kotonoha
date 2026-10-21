@@ -52,6 +52,8 @@ export type ThemTurn = {
   ja: string;
   /** The server's signature over the text, so /api/say reads it; prepared lines have `line` (their clip) instead. */
   sig?: string;
+  /** The same text as signed sentences, voiced one after another (replies since sentence-by-sentence voicing). */
+  parts?: { text: string; sig: string }[];
   line?: string;
   exprs: Span[];
 };

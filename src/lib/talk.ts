@@ -6,7 +6,7 @@
 import { useSyncExternalStore } from "react";
 import { exprById, markRange, type Line, type PartnerId } from "@/content/index.ts";
 import { prefNow } from "@/components/local";
-import { play } from "@/components/audio";
+import { playAll, replyItems } from "@/components/audio";
 import {
   dueKeys,
   historyOf,
@@ -159,6 +159,7 @@ export async function send(
     text: body.reply.text,
     ja: body.reply.ja,
     sig: body.reply.sig,
+    parts: body.reply.parts,
     exprs: body.reply.exprs ?? [],
   };
   commit((s) => {
@@ -167,7 +168,7 @@ export async function send(
     const next = withTurn(withTurn(t, done), reply);
     return recordResult(putThread(s, next), next, done, reply);
   });
-  if (prefNow("sound", true)) void play({ sig: reply.sig!, voice: PARTNERS[thread.partner].voice }, reply.text);
+  if (prefNow("sound", true)) void playAll(replyItems(reply, PARTNERS[thread.partner].voice));
   return { ok: true };
 }
 

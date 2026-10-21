@@ -65,3 +65,33 @@ export function coverage(text: string, piece: string): number {
 export function phraseKey(form: string): string {
   return `p:${normalize(form.replace(/[〜~]/g, "…")).replace(/\s*…\s*/g, " … ")}`;
 }
+
+// Words that end in a full stop without ending the sentence.
+const ABBREVIATIONS = /(?:^|\s)(?:Mt|Mr|Mrs|Ms|Dr|St|vs|etc|e\.g|i\.e|a\.m|p\.m|No)\.$/i;
+
+/**
+ * A reply as sentences, for voicing them one by one (the first is heard while the rest are still being made). A piece of
+ * under three words joins the next ("Yeah." alone would only add a pause). Joined with spaces they give the text back.
+ */
+export function sentencesOf(text: string): string[] {
+  const out: string[] = [];
+  let start = 0;
+  const t = text.trim();
+  for (const m of t.matchAll(/[.!?…]+["'’”)]?\s+(?=["'“‘(]?[A-Z0-9])/g)) {
+    const end = (m.index ?? 0) + m[0].trimEnd().length;
+    const piece = t.slice(start, end);
+    if (ABBREVIATIONS.test(piece)) continue;
+    out.push(piece);
+    start = (m.index ?? 0) + m[0].length;
+  }
+  if (start < t.length) out.push(t.slice(start));
+  const merged: string[] = [];
+  for (const piece of out) {
+    const last = merged[merged.length - 1];
+    if (last !== undefined && wordsOf(last).length < 3) merged[merged.length - 1] = `${last} ${piece}`;
+    else merged.push(piece);
+  }
+  // A short last piece joins the one before.
+  if (merged.length > 1 && wordsOf(merged[merged.length - 1]).length < 3) merged.splice(-2, 2, `${merged[merged.length - 2]} ${merged[merged.length - 1]}`);
+  return merged.filter(Boolean);
+}

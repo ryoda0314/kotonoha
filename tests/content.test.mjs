@@ -16,6 +16,7 @@ import {
   SCENES,
   sampleLines,
 } from "../src/content/index.ts";
+import { VOICING } from "../src/lib/speech.ts";
 
 test("line ids are unique", () => {
   const ids = allLines().map(({ line }) => line.id);
@@ -60,7 +61,7 @@ test("the audio manifest is in step with the lines (after scripts/generate-audio
   if (!existsSync(file)) return;
   const manifest = JSON.parse(readFileSync(file, "utf8"));
   for (const { line, voice } of allLines()) {
-    const hash = createHash("sha256").update(`${voice}\n${line.text}`).digest("hex").slice(0, 8);
+    const hash = createHash("sha256").update(`${VOICING}\n${voice}\n${line.text}`).digest("hex").slice(0, 8);
     assert.equal(manifest[line.id], `${line.id}.${hash}.mp3`, `${line.id} needs voicing again`);
     assert.ok(existsSync(`public/audio/${manifest[line.id]}`), `${line.id}: clip missing`);
   }

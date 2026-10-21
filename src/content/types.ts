@@ -71,6 +71,9 @@ export type Partner = {
   /** The name in katakana, for Japanese sentences. */
   kana: string;
   about: string;
+  /** An OpenAI voice ("marin") or a Google one ("google:Puck"). */
   voice: string;
+  /** For a Google voice: the OpenAI voice that speaks when Google cannot. */
+  fallback?: string;
   persona: string;
 };

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { PARTNERS, YOU_VOICE } from "@/content/index.ts";
 import { Icon } from "@/components/Icon";
 import { Marked, type Highlight } from "@/components/Marked";
+import { replyItems } from "@/components/audio";
 import { Speak } from "@/components/Speak";
 import { usePref } from "@/components/local";
 import { diffRanges } from "@/lib/diff";
@@ -59,6 +60,7 @@ function ThemView({ turn, thread, state }: { turn: ThemTurn; thread: Thread; sta
   const [shown, setShown] = useState(false);
   const partner = PARTNERS[turn.who];
   const sound = turn.line ? { line: turn.line } : turn.sig ? { sig: turn.sig, voice: partner.voice } : null;
+  const sequence = turn.line ? undefined : replyItems(turn, partner.voice);
   return (
     <li className={styles.them}>
       <p className={styles.who}>{partner.name}</p>
@@ -73,7 +75,7 @@ function ThemView({ turn, thread, state }: { turn: ThemTurn; thread: Thread; sta
             }}
           />
         </p>
-        <Speak sound={sound} text={turn.text} label={ja.common.play} size="sm" />
+        <Speak sound={sound} text={turn.text} label={ja.common.play} size="sm" sequence={sequence} />
       </div>
       {turn.ja ? (
         always || shown ? (

@@ -1,5 +1,6 @@
 # dependencies
-/node_modules
+# in any folder (promo/ has its own)
+node_modules/
 
 # next.js
 /.next/
