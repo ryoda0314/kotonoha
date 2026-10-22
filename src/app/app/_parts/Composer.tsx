@@ -9,6 +9,8 @@ import type { SendResult } from "@/lib/talk";
 import styles from "./composer.module.css";
 
 const t = ja.composer;
+/** The most the field grows to (its max-height in composer.module.css), about five lines. */
+const MAX_FIELD = 168;
 
 // The buttons beside the field leave the focus in it. Otherwise pressing one blurs the field first, the keyboard and
 // the tab bar trade places (composer.module.css), the button moves out from under the finger, and the press is lost.
@@ -54,12 +56,29 @@ export function Composer({
     }
   }, [fill, draft]);
 
-  // The field grows with what is written, up to a few lines.
+  // The field grows with what is written (or with its placeholder, which wraps on a narrow screen), up to a few lines.
+  // scrollHeight leaves out the border, which a border-box field must also hold: without it the last 3 px overflowed
+  // and a scroll bar stood beside a single line. It scrolls only past the most it grows to.
   useEffect(() => {
     const el = box.current;
     if (!el) return;
-    el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 168)}px`;
+    const fit = () => {
+      el.style.height = "auto";
+      const full = el.scrollHeight + el.offsetHeight - el.clientHeight;
+      el.style.height = `${Math.min(full, MAX_FIELD)}px`;
+      el.style.overflowY = full > MAX_FIELD ? "auto" : "hidden";
+    };
+    fit();
+    // A change of width rewraps it (the window, the sheet it is in).
+    let width = el.clientWidth;
+    const watch = new ResizeObserver(() => {
+      if (el.clientWidth !== width) {
+        width = el.clientWidth;
+        fit();
+      }
+    });
+    watch.observe(el);
+    return () => watch.disconnect();
   }, [draft.value]);
 
   async function submit() {

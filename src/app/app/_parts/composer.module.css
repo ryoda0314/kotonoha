@@ -33,6 +33,9 @@
   background: var(--paper);
   font-size: 16px;
   line-height: 1.5;
+  /* Composer.tsx turns scrolling on only once it is full; then a thin bar. */
+  overflow-y: hidden;
+  scrollbar-width: thin;
   /* Between phrases like the page (globals.css), so the placeholder does not end on …のまま／で。; but not "pretty":
      what is being typed should not rewrap its earlier lines with every key. */
   word-break: auto-phrase;
