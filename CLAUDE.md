@@ -126,7 +126,9 @@ borrows their look, their accounts and their way of keeping a record.
 
 - UI copy in `src/lib/i18n/ja.ts`, plain, from the learner's side.
 - Colors and type are the sisters' (`src/app/globals.css`): paper, ink, one accent, `--again` violet for what comes back.
-  No gradients, emoji or shadows inside the app; hairlines separate.
+  No gradients, emoji or shadows inside the app; hairlines separate. Japanese wraps between phrases and a paragraph does
+  not end on a lone word (`body`: `word-break: auto-phrase`, `text-wrap: pretty`); a lit expression's tint does not move
+  the words around it (`.hl-mark`/`.hl-again`: padding with the same margin back), as the promotional film shows them.
 - The app icon is the one picture with gradients: the image the maker chose (`design/icon-source.png`, a cloud raining
   onto two leaves). `python design/make-icons.py design/icon-source.png .` (Pillow, numpy) cuts its card out of the white
   ground and the grey shadow around it, and writes `public/icons/` (transparent corners; maskable on a full square),

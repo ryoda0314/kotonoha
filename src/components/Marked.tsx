@@ -33,7 +33,12 @@ export function Marked({
     const end = points[i + 1];
     const piece = text.slice(start, end);
     const here = valid.filter((h) => h.start <= start && h.end >= end);
-    const classes = [...new Set(here.map((h) => CLASS[h.kind]))].join(" ");
+    const lit = here.filter((h) => h.kind === "mark" || h.kind === "again");
+    const classes = [
+      ...new Set(here.map((h) => CLASS[h.kind])),
+      ...(lit.some((h) => h.start < start) ? ["hl-join-l"] : []),
+      ...(lit.some((h) => h.end > end) ? ["hl-join-r"] : []),
+    ].join(" ");
     const expr = here.find((h) => h.expr)?.expr;
     if (!classes) out.push(<span key={start}>{piece}</span>);
     else if (expr && onExpr)

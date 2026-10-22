@@ -48,6 +48,11 @@ body {
   font-size: 16px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  /* Japanese wraps between phrases (今日は出かける／気分じゃない, not …気分じゃな／い), and a paragraph does not end on a
+     lone word. English wraps as before; where auto-phrase is not known (Safari) it wraps as it always did. */
+  word-break: auto-phrase;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
 }
 
 /* A solid strip behind the phone's status bar (zero tall where there is none). Without it iOS draws a gradient over
@@ -104,8 +109,13 @@ h1, h2, h3 { text-wrap: balance; }
 }
 
 /* Highlights (components/Marked.tsx) */
-.hl-mark { background: var(--tint); color: var(--accent); border-radius: 0.15em; padding: 0 0.1em; animation: mark-in 0.5s ease-out both; }
-.hl-again { background: var(--again-tint); color: var(--again); border-radius: 0.15em; padding: 0 0.1em; }
+/* The tint reaches a little past the words (padding) without moving them (the same margin back), so a lit expression
+   inside a corrected stretch keeps the spaces, the line breaks and the underline of the sentence around it unbroken. */
+.hl-mark { background: var(--tint); color: var(--accent); border-radius: 0.15em; padding: 0 0.1em; margin: 0 -0.1em; animation: mark-in 0.5s ease-out both; }
+.hl-again { background: var(--again-tint); color: var(--again); border-radius: 0.15em; padding: 0 0.1em; margin: 0 -0.1em; }
+/* A lit expression cut into pieces by a change inside it: rounded only at its two ends. */
+.hl-join-l { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.hl-join-r { border-top-right-radius: 0; border-bottom-right-radius: 0; }
 @keyframes mark-in { from { background: transparent; color: inherit; } }
 .hl-ins { color: var(--accent); font-weight: 600; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.3em; }
 .hl-del { color: var(--faint); text-decoration: line-through; text-decoration-thickness: 1.5px; }

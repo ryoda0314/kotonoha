@@ -33,6 +33,10 @@
   background: var(--paper);
   font-size: 16px;
   line-height: 1.5;
+  /* Between phrases like the page (globals.css), so the placeholder does not end on …のまま／で。; but not "pretty":
+     what is being typed should not rewrap its earlier lines with every key. */
+  word-break: auto-phrase;
+  text-wrap: wrap;
 }
 .field::placeholder { color: var(--faint); font-family: var(--font-ja); font-size: 14px; }
 .icon, .send {

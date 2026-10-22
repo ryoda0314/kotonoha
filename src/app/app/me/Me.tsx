@@ -30,6 +30,15 @@ export function dayLabel(day: string): string {
   );
 }
 
+const yesterdayOf = (today: string) => dayOf(Date.parse(`${today}T12:00:00+09:00`) - 86_400_000);
+
+/** A day in a list: 今日 and きのう by name, any other by its date. */
+function dayWord(day: string, today: string): string {
+  if (today && day === today) return t.today;
+  if (today && day === yesterdayOf(today)) return t.yesterday;
+  return dayLabel(day);
+}
+
 /** What a place in the record is called. */
 export function whereTitle(state: State, where: Where): string {
   if (where.kind === "meet") return dialogueById(where.id)?.title ?? "";
@@ -45,6 +54,7 @@ export function Me() {
   useEffect(() => {
     void account().then(setMe);
   }, []);
+  const today = useToday();
 
   if (!state) {
     return (
@@ -89,7 +99,7 @@ export function Me() {
                 </p>
                 {g.text ? <p className={`${styles.grownText} t-en`}>{g.text}</p> : null}
                 <p className={styles.grownMeta}>
-                  {dayLabel(dayOf(g.at))} · {t.grownItem(g.before)} → {t.kinds.own}
+                  {dayWord(dayOf(g.at), today)} · {t.grownItem(g.before)} → {t.kinds.own}
                   {whereTitle(state, g.where) ? ` ·「${whereTitle(state, g.where)}」` : ""}
                 </p>
               </li>
@@ -194,6 +204,7 @@ function ExprsView({ state }: { state: State }) {
 }
 
 function GapsView({ state }: { state: State }) {
+  const today = useToday();
   const gaps = gapsOf(state);
   if (!gaps.length) return <p className={page.empty}>{t.gapsEmpty}</p>;
   return (
@@ -208,7 +219,7 @@ function GapsView({ state }: { state: State }) {
                 <span className="t-en">{g.en}</span>
               </span>
               <span className={page.rowSub}>
-                {dayLabel(dayOf(g.at))} ·「{g.thread.title}」
+                {dayWord(dayOf(g.at), today)} ·「{g.thread.title}」
               </span>
             </span>
           </Link>
@@ -219,6 +230,7 @@ function GapsView({ state }: { state: State }) {
 }
 
 function ThreadsView({ state }: { state: State }) {
+  const today = useToday();
   if (!state.threads.length) return <p className={page.empty}>{t.threadsEmpty}</p>;
   return (
     <ul className={page.rows}>
@@ -233,7 +245,7 @@ function ThreadsView({ state }: { state: State }) {
                   {x.kind === "side" ? <span className="t-en">{x.title}</span> : x.title}
                 </span>
                 <span className={page.rowSub}>
-                  {ja.talk.with(PARTNERS[x.partner].kana)} · {dayLabel(dayOf(x.updatedAt))} · {ja.talk.turns(x.turns.filter((y) => y.role === "me").length)}
+                  {ja.talk.with(PARTNERS[x.partner].kana)} · {dayWord(dayOf(x.updatedAt), today)} · {ja.talk.turns(x.turns.filter((y) => y.role === "me").length)}
                 </span>
               </span>
               <Icon name="arrow" size={16} />
@@ -259,7 +271,7 @@ function DaysView({ state }: { state: State }) {
   for (const x of state.threads) for (const turn of x.turns) if (turn.role === "me" && turn.result) day(turn.at).said++;
   const list = [...days.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1));
   if (!list.length) return <p className={page.empty}>{t.daysEmpty}</p>;
-  const yesterday = dayOf(Date.parse(`${today}T12:00:00+09:00`) - 86_400_000);
+  const yesterday = yesterdayOf(today);
   return (
     <div className={styles.days}>
       {list.map(([d, v]) => (
