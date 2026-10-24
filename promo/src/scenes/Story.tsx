@@ -603,16 +603,19 @@ function MeScreen({ frame }: { frame: number }) {
         </section>
         <section style={{ display: "flex", flexDirection: "column", gap: 10, padding: "20px 0", borderTop: `1px solid ${C.line}`, ...fall(frame, o.me + 20, 10, 16) }}>
           <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>これまで</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))" }}>
             {[
               ["出会った会話", 6],
               ["話した会話", 4],
               ["送った文", 17],
               ["自分から使った表現", 5],
-            ].map(([k, v]) => (
-              <div key={k} style={{ padding: "12px 14px", border: `1px solid ${C.line}`, borderRadius: 12 }}>
-                <p style={{ margin: 0, fontSize: 12.5, color: C.muted }}>{k}</p>
-                <p style={{ margin: 0, fontSize: 22, fontWeight: 600 }}>{v}</p>
+            ].map(([k, v], i) => (
+              <div
+                key={k}
+                style={{ display: "flex", flexDirection: "column", padding: i ? "2px 0 2px 10px" : "2px 0", ...(i ? { borderLeft: `1px solid ${C.line}` } : {}) }}
+              >
+                <p style={{ margin: 0, fontSize: 12, lineHeight: 1.5, color: C.muted }}>{k}</p>
+                <p style={{ margin: "auto 0 0", paddingTop: 2, fontSize: 22, fontWeight: 500 }}>{v}</p>
               </div>
             ))}
           </div>

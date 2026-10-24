@@ -22,6 +22,8 @@ function useToday(): string {
 }
 const VIEWS = ["exprs", "gaps", "threads", "days"] as const;
 type View = (typeof VIEWS)[number];
+/** できたこと shown before the rest is asked for. */
+const GROWN_FIRST = 3;
 
 /** A day as the learner would say it: 10月21日（火）. */
 export function dayLabel(day: string): string {
@@ -51,6 +53,7 @@ export function Me() {
   const state = useRecord();
   const [view, setView] = useChoice<View>("me-view", VIEWS, "exprs");
   const [me, setMe] = useState<Account | null | undefined>(undefined);
+  const [allGrown, setAllGrown] = useState(false);
   useEffect(() => {
     void account().then(setMe);
   }, []);
@@ -91,7 +94,7 @@ export function Me() {
         <p className={page.note}>{t.grownLead}</p>
         {done.length ? (
           <ul className={styles.grown}>
-            {done.slice(0, 12).map((g) => (
+            {(allGrown ? done : done.slice(0, GROWN_FIRST)).map((g) => (
               <li key={`${g.key}:${g.at}`}>
                 <p className={styles.grownHead}>
                   <span className="t-en">{exprById(g.key)?.form ?? g.form}</span>
@@ -108,6 +111,11 @@ export function Me() {
         ) : (
           <p className={page.empty}>{t.grownEmpty}</p>
         )}
+        {!allGrown && done.length > GROWN_FIRST ? (
+          <button type="button" className={styles.more} onClick={() => setAllGrown(true)}>
+            {t.more(done.length - GROWN_FIRST)}
+          </button>
+        ) : null}
       </section>
 
       <section className={page.section}>
@@ -121,17 +129,27 @@ export function Me() {
           ))}
         </dl>
         <p className={page.note}>{t.sofarNote}</p>
-      </section>
 
-      <section className={page.section}>
-        <div className={styles.views} role="group" aria-label={t.viewsLabel}>
+        <div className={styles.tabs} role="tablist" aria-label={t.viewsLabel}>
           {VIEWS.map((v) => (
-            <button key={v} type="button" className={styles.view} aria-pressed={view === v} onClick={() => setView(v)}>
+            <button
+              key={v}
+              type="button"
+              role="tab"
+              id={`me-tab-${v}`}
+              aria-selected={view === v}
+              aria-controls="me-view"
+              className={view === v ? styles.tabOn : styles.tab}
+              onClick={() => setView(v)}
+            >
               {t.views[v]}
             </button>
           ))}
         </div>
-        {view === "exprs" ? <ExprsView state={state} /> : view === "gaps" ? <GapsView state={state} /> : view === "threads" ? <ThreadsView state={state} /> : <DaysView state={state} />}
+        <div id="me-view" role="tabpanel" aria-labelledby={`me-tab-${view}`} className={styles.panel}>
+          <p className={page.note}>{t.viewNotes[view]}</p>
+          {view === "exprs" ? <ExprsView state={state} /> : view === "gaps" ? <GapsView state={state} /> : view === "threads" ? <ThreadsView state={state} /> : <DaysView state={state} />}
+        </div>
       </section>
 
       <section className={page.section}>
@@ -159,10 +177,24 @@ export function Me() {
   );
 }
 
-const ORDER: EventKind[] = ["met", "looked", "ai", "borrowed", "remade", "own"];
+/** What the learner did with an expression, in the order it usually happens; met is left out of a row (every one was met). */
+const ORDER: EventKind[] = ["looked", "ai", "borrowed", "remade", "own"];
+const GROUPS = ["own", "noticed", "met"] as const;
+type Group = (typeof GROUPS)[number];
+/** 出会っただけ shown before the rest is asked for. */
+const MET_FIRST = 8;
+
+/** Used on their own; taken notice of (opened, or used with help); or only met so far. */
+function groupOf(log: ExprLog): Group {
+  if (log.events.some((e) => e.kind === "own")) return "own";
+  if (log.events.some((e) => e.kind !== "met")) return "noticed";
+  return "met";
+}
 
 function ExprsView({ state }: { state: State }) {
   const open = useOpenExpr();
+  const today = useToday();
+  const [allMet, setAllMet] = useState(false);
   const logs = Object.values(state.exprs)
     .filter((l) => l.events.length)
     .sort((a, b) => b.events[b.events.length - 1].at - a.events[a.events.length - 1].at);
@@ -174,32 +206,69 @@ function ExprsView({ state }: { state: State }) {
     const partner: PartnerId = thread?.partner ?? (last.where.kind === "scene" ? (sceneById(last.where.id)?.line.who as PartnerId) : "mia") ?? "mia";
     open({ key: log.key, from: { kind: last.where.kind, id: last.where.id, title: whereTitle(state, last.where) }, partner, text: last.text, range: last.text ? { start: 0, end: last.text.length } : null });
   };
+  const formOf = (log: ExprLog) => exprById(log.key)?.form ?? log.form;
 
   return (
-    <ul className={page.rows}>
-      {logs.map((log) => {
-        const counts = new Map<EventKind, number>();
-        for (const e of log.events) counts.set(e.kind, (counts.get(e.kind) ?? 0) + 1);
+    <div className={styles.groups}>
+      {GROUPS.map((group) => {
+        const list = logs.filter((l) => groupOf(l) === group);
+        if (!list.length) return null;
+        const shown = group === "met" && !allMet ? list.slice(0, MET_FIRST) : list;
         return (
-          <li key={log.key}>
-            <button type="button" className={page.row} onClick={() => openLog(log)}>
-              <span className={page.rowMain}>
-                <span className={`${page.rowTitle} t-en`}>{exprById(log.key)?.form ?? log.form}</span>
-                <span className={page.rowSub}>{log.label}</span>
-                <span className={styles.kinds}>
-                  {ORDER.filter((k) => counts.get(k)).map((k) => (
-                    <span key={k} className={k === "own" ? `${styles.kind} ${styles.own}` : styles.kind}>
-                      {t.kinds[k]} {counts.get(k)}
-                    </span>
-                  ))}
-                </span>
-              </span>
-              <Icon name="arrow" size={16} />
-            </button>
-          </li>
+          <section key={group} className={styles.group}>
+            <h3 className={styles.groupHead}>
+              {t.groups[group]}
+              <span>{list.length}</span>
+            </h3>
+            <p className={page.note}>{t.groupNotes[group]}</p>
+            {group === "met" ? (
+              <div className={styles.chips}>
+                {shown.map((log) => (
+                  <button key={log.key} type="button" className={styles.chip} onClick={() => openLog(log)}>
+                    <span className="t-en">{formOf(log)}</span>
+                    <span className={styles.chipLabel}>{log.label}</span>
+                  </button>
+                ))}
+                {shown.length < list.length ? (
+                  <button type="button" className={styles.more} onClick={() => setAllMet(true)}>
+                    {t.more(list.length - shown.length)}
+                  </button>
+                ) : null}
+              </div>
+            ) : (
+              <ul className={page.rows}>
+                {shown.map((log) => {
+                  const counts = new Map<EventKind, number>();
+                  for (const e of log.events) counts.set(e.kind, (counts.get(e.kind) ?? 0) + 1);
+                  return (
+                    <li key={log.key}>
+                      <button type="button" className={page.row} onClick={() => openLog(log)}>
+                        <span className={page.rowMain}>
+                          <span className={styles.rowHead}>
+                            <span className={`${styles.form} t-en`}>{formOf(log)}</span>
+                            <span className={page.rowSub}>{log.label}</span>
+                          </span>
+                          <span className={styles.kinds}>
+                            <span>{dayWord(dayOf(log.events[log.events.length - 1].at), today)}</span>
+                            {ORDER.filter((k) => counts.get(k)).map((k) => (
+                              <span key={k} className={k === "own" ? styles.own : undefined}>
+                                {t.kinds[k]}
+                                {counts.get(k)! > 1 ? ` ${t.times(counts.get(k)!)}` : ""}
+                              </span>
+                            ))}
+                          </span>
+                        </span>
+                        <Icon name="arrow" size={16} />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
         );
       })}
-    </ul>
+    </div>
   );
 }
 
