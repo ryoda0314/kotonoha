@@ -20,7 +20,7 @@ export function ExportView() {
   return (
     <div className={page.page}>
       <header className={page.bar}>
-        <Link href="/app/me" className={page.iconLink} aria-label={ja.common.back}>
+        <Link href="/app/me/settings" className={page.iconLink} aria-label={ja.common.back}>
           <Icon name="back" size={22} />
         </Link>
         <h1 className={page.barTitle}>{t.title}</h1>

@@ -74,11 +74,12 @@ borrows their look, their accounts and their way of keeping a record.
   are lit only after it has fallen (and violet if noticed before); chips open them. `/app/talk` 話す: four frames, each a
   partner with their own plans, then a conversation with まとめ. `/app/scene` 場面で言う: the partner's line and the
   learner's circumstances (never a finished Japanese answer); samples only when opened; after answering the scene goes
-  on as a conversation. `/app/me` 自分: できたこと first (the newest three, the rest when asked), counts in a quiet
-  row (their own, never compared), and four views as tabs, each with a line saying what it holds (expressions grouped
-  by what the learner did with each: 自分から使った, 気にとめた (opened or used with help), 出会っただけ as chips;
-  Japanese parts, conversations, days); `/app/me/t/[id]` a conversation looked back on and carried on; `/app/me/export`;
-  `/app/me/settings` (sound, speed, translations, the account, clearing the record). `/login`: ことのあめのアカウントでつなぐ.
+  on as a conversation. `/app/me` 自分: looking back only, short enough to see at once: the learner's own counts in one
+  quiet row (never compared), then one view at a time as tabs, each with a line saying what it holds and only its first
+  few items until more are asked for: できたこと (first), 表現 (grouped by what the learner did with each: 自分から使った,
+  気にとめた (opened or used with help), 出会っただけ as chips), 日本語 (the Japanese parts), 会話, 日ごと. Settings and
+  書き出す are not on it: 設定 at the right of its bar. `/app/me/t/[id]` a conversation looked back on and carried on;
+  `/app/me/settings` 設定 (sound, speed, translations, the account, the record: `/app/me/export` and clearing it). `/login`: ことのあめのアカウントでつなぐ.
   ことのあめでつなぐ (`src/lib/connect.ts`): off to ことのあめ's `/connect` (log in or sign up there), back to `/login`
   with a one-time token in the fragment, spent with `verifyOtp` (`signInWithKotonoame`) only when the random state kept
   on this device before leaving comes back with it (a link carrying someone else's token cannot sign the learner in).

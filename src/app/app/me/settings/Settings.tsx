@@ -93,6 +93,17 @@ export function Settings() {
       <section className={page.section}>
         <h2 className={page.h2}>{t.record}</h2>
         {state ? <p className={page.note}>{t.size(state.threads.length, Object.keys(state.exprs).length)}</p> : null}
+        <ul className={page.rows}>
+          <li>
+            <Link href="/app/me/export" className={page.row}>
+              <span className={page.rowMain}>
+                <span className={page.rowTitle}>{t.exportLink}</span>
+                <span className={page.rowSub}>{t.exportLead}</span>
+              </span>
+              <Icon name="arrow" size={16} />
+            </Link>
+          </li>
+        </ul>
         <div className={page.actions}>
           <button
             type="button"

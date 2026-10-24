@@ -14,7 +14,8 @@ type IconName =
   | "scene"
   | "user"
   | "leaf"
-  | "list";
+  | "list"
+  | "settings";
 
 const PATHS: Record<IconName, React.ReactNode> = {
   speaker: (
@@ -102,6 +103,14 @@ const PATHS: Record<IconName, React.ReactNode> = {
     </>
   ),
   list: <path d="M4 7h16M4 12h16M4 17h10" />,
+  // 設定: two sliders.
+  settings: (
+    <>
+      <path d="M4 7h9M17 7h3M4 17h3M11 17h9" />
+      <circle cx="15" cy="7" r="2" />
+      <circle cx="9" cy="17" r="2" />
+    </>
+  ),
 };
 
 export function Icon({ name, size = 20 }: { name: IconName; size?: number }) {

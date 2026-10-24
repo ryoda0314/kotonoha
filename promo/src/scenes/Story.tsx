@@ -89,7 +89,7 @@ function Layer({ opacity, children }: { opacity: number; children: React.ReactNo
 
 // ---- shared pieces --------------------------------------------------------------------------------------------------
 
-function Bar({ title, sub, actions = [] }: { title: string; sub?: string; actions?: string[] }) {
+function Bar({ title, sub, actions = [], end }: { title: string; sub?: string; actions?: string[]; end?: React.ReactNode }) {
   return (
     <header
       style={{
@@ -116,6 +116,7 @@ function Bar({ title, sub, actions = [] }: { title: string; sub?: string; action
           {a}
         </span>
       ))}
+      {end}
     </header>
   );
 }
@@ -563,20 +564,66 @@ const GROWN = [
   { form: "Can we 〜 first?", label: "先にしたいことを頼む", text: "Can we eat first? I'm starving.", meta: "きのう · 前は見本をそのまま使った → 自分から使った" },
 ];
 
+const ME_STATS: [string, number][] = [
+  ["出会った会話", 6],
+  ["話した会話", 4],
+  ["送った文", 17],
+  ["自分から使った表現", 5],
+];
+const ME_TABS = ["できたこと", "表現", "日本語", "会話", "日ごと"];
+
 function MeScreen({ frame }: { frame: number }) {
   const { T } = useTimeline();
   const o = T.own;
+  const note = { margin: 0, fontSize: 13, lineHeight: 1.7, color: C.muted } as const;
   return (
     <>
-      <Bar title="自分" />
+      <Bar
+        title="自分"
+        end={
+          <span style={{ width: 44, height: 44, marginRight: -10, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+            <Icon name="settings" size={22} />
+          </span>
+        }
+      />
       <div style={{ position: "absolute", top: BAR, left: 0, right: 0, padding: "0 20px" }}>
-        <p style={{ margin: "16px 0 0", fontSize: 14, lineHeight: 1.75, color: C.muted }}>これまでを振り返る場所。点数にはせず、ほかの人とも比べません。</p>
-        <section style={{ display: "flex", flexDirection: "column", gap: 10, padding: "20px 0" }}>
-          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
-            <Icon name="leaf" size={16} />
-            できたこと
-          </h2>
-          <p style={{ margin: 0, fontSize: 13, lineHeight: 1.7, color: C.muted }}>見本やAIの助けで出会った表現を、あとで自分から使えたとき。</p>
+        <div style={{ margin: "16px 0 0", display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))" }}>
+          {ME_STATS.map(([k, v], i) => (
+            <div
+              key={k}
+              style={{ display: "flex", flexDirection: "column", padding: i ? "2px 0 2px 10px" : "2px 0", ...(i ? { borderLeft: `1px solid ${C.line}` } : {}) }}
+            >
+              <p style={{ margin: 0, fontSize: 12, lineHeight: 1.5, color: C.muted }}>{k}</p>
+              <p style={{ margin: "auto 0 0", paddingTop: 2, fontSize: 22, fontWeight: 500 }}>{v}</p>
+            </div>
+          ))}
+        </div>
+        <p style={{ ...note, marginTop: 8 }}>自分のための数です。点数にはせず、ほかの人とも比べません。</p>
+        <div style={{ display: "flex", marginTop: 16, borderBottom: `1px solid ${C.line}` }}>
+          {ME_TABS.map((tab, i) => (
+            <span
+              key={tab}
+              style={{
+                flex: "1 1 auto",
+                minHeight: 44,
+                padding: "0 6px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: -1,
+                borderBottom: `2px solid ${i === 0 ? C.ink : "transparent"}`,
+                fontSize: 14,
+                whiteSpace: "nowrap",
+                color: i === 0 ? C.ink : C.muted,
+                fontWeight: i === 0 ? 600 : 400,
+              }}
+            >
+              {tab}
+            </span>
+          ))}
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14, paddingTop: 14 }}>
+          <p style={note}>見本やAIの助けで出会った表現を、あとで自分から使えたとき。</p>
           <div>
             {GROWN.map((g, i) => (
               <div
@@ -600,26 +647,7 @@ function MeScreen({ frame }: { frame: number }) {
               </div>
             ))}
           </div>
-        </section>
-        <section style={{ display: "flex", flexDirection: "column", gap: 10, padding: "20px 0", borderTop: `1px solid ${C.line}`, ...fall(frame, o.me + 20, 10, 16) }}>
-          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>これまで</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))" }}>
-            {[
-              ["出会った会話", 6],
-              ["話した会話", 4],
-              ["送った文", 17],
-              ["自分から使った表現", 5],
-            ].map(([k, v], i) => (
-              <div
-                key={k}
-                style={{ display: "flex", flexDirection: "column", padding: i ? "2px 0 2px 10px" : "2px 0", ...(i ? { borderLeft: `1px solid ${C.line}` } : {}) }}
-              >
-                <p style={{ margin: 0, fontSize: 12, lineHeight: 1.5, color: C.muted }}>{k}</p>
-                <p style={{ margin: "auto 0 0", paddingTop: 2, fontSize: 22, fontWeight: 500 }}>{v}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        </div>
       </div>
     </>
   );

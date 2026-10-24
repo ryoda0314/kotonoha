@@ -155,18 +155,15 @@ export const ja = {
 
   me: {
     title: "自分",
-    lead: "これまでを振り返る場所。点数にはせず、ほかの人とも比べません。",
-    grown: "できたこと",
-    grownLead: "見本やAIの助けで出会った表現を、あとで自分から使えたとき。",
     grownEmpty: "まだありません。AIが補った表現や、見本で使った表現を、あとで自分から使えたとき、ここに残ります。",
     grownItem: (before: EventKind) =>
       ({ ai: "前はAIが補った", borrowed: "前は見本をそのまま使った", remade: "前は表現を指定して使った", looked: "前に見て気にとめた", met: "", own: "" })[before],
-    sofar: "これまで",
     stats: { meets: "出会った会話", threads: "話した会話", said: "送った文", own: "自分から使った表現" },
-    sofarNote: "自分のための数です。",
-    views: { exprs: "表現", gaps: "日本語で補ったところ", threads: "会話", days: "日ごと" },
+    sofarNote: "自分のための数です。点数にはせず、ほかの人とも比べません。",
+    views: { grown: "できたこと", exprs: "表現", gaps: "日本語", threads: "会話", days: "日ごと" },
     viewsLabel: "振り返りかた",
     viewNotes: {
+      grown: "見本やAIの助けで出会った表現を、あとで自分から使えたとき。",
       exprs: "出会った表現を、どう使ったかで分けています。押すと、ほかの言い方や別の場面が見られます。",
       gaps: "文の中で日本語で言ったところと、英語ではどう言うか。押すと、その会話に戻ります。",
       threads: "話した会話。押すと読み返せて、続きも話せます。",
@@ -194,10 +191,6 @@ export const ja = {
     dayMeets: "出会った会話",
     dayScenes: "場面",
     daySaid: "送った文",
-    exportLink: "学習の記録を書き出す",
-    settingsLink: "記録とアカウント",
-    linkedShort: (email: string) => `${email} とつないでいます`,
-    localShort: "記録はこの端末だけに残っています。",
     connect: "つなぐ",
     open: "開く",
     deleteThread: "この会話を消す",
@@ -217,7 +210,7 @@ export const ja = {
   },
 
   settings: {
-    title: "記録とアカウント",
+    title: "設定",
     listen: "聞きかた",
     soundLead: "相手の返事や会話を、自動で流します。電車の中ではオフにしても。",
     speedLead: "英語の速さ",
@@ -230,6 +223,8 @@ export const ja = {
     unlink: "ログアウト",
     record: "記録",
     size: (threads: number, exprs: number) => `会話 ${threads}、表現 ${exprs} の記録があります。`,
+    exportLink: "学習の記録を書き出す",
+    exportLead: "記録を一つの文章にして、ChatGPT などに今の様子を見てもらえます。",
     reset: "この端末の記録を消す",
     resetConfirm: "この端末に残っている記録をすべて消します。よろしいですか？",
     resetLinked: "記録を消す",
