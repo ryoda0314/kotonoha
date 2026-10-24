@@ -6,7 +6,7 @@ import { dialogueById, exprById, PARTNERS, sceneById, type PartnerId } from "@/c
 import { Icon } from "@/components/Icon";
 import { useChoice } from "@/components/local";
 import { ja } from "@/lib/i18n/ja";
-import { dayOf, gapsOf, grown, type EventKind, type ExprLog, type State, type Where } from "@/lib/record";
+import { dayOf, gapsOf, grown, type EventKind, type ExprLog, type State, type Thread, type Where } from "@/lib/record";
 import { useRecord } from "@/lib/store";
 import { useOpenExpr } from "../_parts/ExprHost";
 import page from "../_parts/page.module.css";
@@ -316,55 +316,170 @@ function ThreadsView({ state }: { state: State }) {
   );
 }
 
-function DaysView({ state }: { state: State }) {
-  const today = useToday();
-  const days = new Map<string, { meets: Set<string>; scenes: Set<string>; said: number }>();
+/** What happened on one day: conversations met, scenes shown, conversations talked in, sentences sent. */
+type DayLog = { meets: Set<string>; scenes: Set<string>; threads: Map<string, Thread>; said: number };
+
+function daysOf(state: State): Map<string, DayLog> {
+  const days = new Map<string, DayLog>();
   const day = (at: number) => {
     const d = dayOf(at);
-    if (!days.has(d)) days.set(d, { meets: new Set(), scenes: new Set(), said: 0 });
+    if (!days.has(d)) days.set(d, { meets: new Set(), scenes: new Set(), threads: new Map(), said: 0 });
     return days.get(d)!;
   };
   for (const v of state.visits) {
     const title = v.kind === "meet" ? dialogueById(v.id)?.title : sceneById(v.id)?.title;
     if (title) (v.kind === "meet" ? day(v.at).meets : day(v.at).scenes).add(title);
   }
-  for (const x of state.threads) for (const turn of x.turns) if (turn.role === "me" && turn.result) day(turn.at).said++;
-  const [list, more] = useFirst([...days.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1)), 4);
-  if (!list.length) return <p className={page.empty}>{t.daysEmpty}</p>;
+  for (const x of state.threads)
+    for (const turn of x.turns)
+      if (turn.role === "me" && turn.result) {
+        day(turn.at).said++;
+        day(turn.at).threads.set(x.id, x);
+      }
+  // A scene answered that day is there as the conversation it became.
+  for (const log of days.values()) for (const x of log.threads.values()) if (x.kind === "scene") log.scenes.delete(x.title);
+  return days;
+}
+
+const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
+/** A month ("2026-10") moved by `by` months. */
+function shiftMonth(month: string, by: number): string {
+  const [y, m] = month.split("-").map(Number);
+  const d = new Date(Date.UTC(y, m - 1 + by, 1));
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+/** A month's weeks, Sunday first; null where a week reaches into the month before or after. */
+function weeksOf(month: string): (string | null)[][] {
+  const [y, m] = month.split("-").map(Number);
+  const cells: (string | null)[] = Array(new Date(Date.UTC(y, m - 1, 1)).getUTCDay()).fill(null);
+  for (let d = 1; d <= new Date(Date.UTC(y, m, 0)).getUTCDate(); d++) cells.push(`${month}-${String(d).padStart(2, "0")}`);
+  while (cells.length % 7) cells.push(null);
+  return Array.from({ length: cells.length / 7 }, (_, i) => cells.slice(i * 7, i * 7 + 7));
+}
+
+/**
+ * 日ごと: a month's calendar, the days with a record dotted (only that: no count, no run of days), and the record of the
+ * day picked under it; the newest day with a record at first.
+ */
+function DaysView({ state }: { state: State }) {
+  const today = useToday();
+  const days = daysOf(state);
+  const recorded = [...days.keys()].sort();
+  const [picked, setPicked] = useState<string | null>(null);
+  const [month, setMonth] = useState<string | null>(null);
+  if (!recorded.length) return <p className={page.empty}>{t.daysEmpty}</p>;
+
+  const day = picked ?? recorded[recorded.length - 1];
+  const shown = month ?? day.slice(0, 7);
+  const first = recorded[0].slice(0, 7);
+  const last = [recorded[recorded.length - 1].slice(0, 7), today.slice(0, 7)].sort()[1];
+  const [y, m] = shown.split("-").map(Number);
+  const log = days.get(day);
   const yesterday = yesterdayOf(today);
   return (
     <>
-      <div className={styles.days}>
-        {list.map(([d, v]) => (
-          <section key={d} className={styles.day}>
-            <h3 className={styles.dayHead}>
-              {dayLabel(d)}
-              {d === today ? <span>{t.today}</span> : d === yesterday ? <span>{t.yesterday}</span> : null}
-            </h3>
-            <dl className={styles.dayList}>
-              {v.meets.size ? (
-                <div>
-                  <dt>{t.dayMeets}</dt>
-                  <dd>{[...v.meets].join(" · ")}</dd>
-                </div>
-              ) : null}
-              {v.scenes.size ? (
-                <div>
-                  <dt>{t.dayScenes}</dt>
-                  <dd>{[...v.scenes].join(" · ")}</dd>
-                </div>
-              ) : null}
-              {v.said ? (
-                <div>
-                  <dt>{t.daySaid}</dt>
-                  <dd>{v.said}</dd>
-                </div>
-              ) : null}
-            </dl>
-          </section>
-        ))}
+      <div className={styles.calendar}>
+        <div className={styles.calHead}>
+          <button type="button" className={styles.calNav} disabled={shown <= first} onClick={() => setMonth(shiftMonth(shown, -1))} aria-label={t.prevMonth}>
+            <Icon name="back" size={20} />
+          </button>
+          <p className={styles.calMonth} aria-live="polite">
+            {t.monthLabel(y, m)}
+          </p>
+          <button
+            type="button"
+            className={`${styles.calNav} ${styles.calNext}`}
+            disabled={shown >= last}
+            onClick={() => setMonth(shiftMonth(shown, 1))}
+            aria-label={t.nextMonth}
+          >
+            <Icon name="back" size={20} />
+          </button>
+        </div>
+        <table className={styles.cal}>
+          <thead>
+            <tr>
+              {WEEKDAYS.map((w) => (
+                <th key={w} scope="col">
+                  {w}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {weeksOf(shown).map((week, i) => (
+              <tr key={i}>
+                {week.map((d, j) => (
+                  <td key={d ?? `-${j}`}>
+                    {d === null ? null : days.has(d) ? (
+                      <button
+                        type="button"
+                        className={d === today ? `${styles.cell} ${styles.cellToday}` : styles.cell}
+                        aria-pressed={d === day}
+                        aria-label={dayLabel(d)}
+                        onClick={() => setPicked(d)}
+                      >
+                        {Number(d.slice(8))}
+                        <span className={styles.dot} />
+                      </button>
+                    ) : (
+                      <span className={d === today ? `${styles.cell} ${styles.cellQuiet} ${styles.cellToday}` : `${styles.cell} ${styles.cellQuiet}`}>
+                        {Number(d.slice(8))}
+                        <span className={`${styles.dot} ${styles.dotNone}`} />
+                      </span>
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      {more}
+
+      <section className={styles.day}>
+        <h3 className={styles.dayHead}>
+          {dayLabel(day)}
+          {day === today ? <span>{t.today}</span> : day === yesterday ? <span>{t.yesterday}</span> : null}
+        </h3>
+        {log ? (
+          <dl className={styles.dayList}>
+            {log.meets.size ? (
+              <div>
+                <dt>{t.dayMeets}</dt>
+                <dd>{[...log.meets].join(" · ")}</dd>
+              </div>
+            ) : null}
+            {log.scenes.size ? (
+              <div>
+                <dt>{t.dayScenes}</dt>
+                <dd>{[...log.scenes].join(" · ")}</dd>
+              </div>
+            ) : null}
+            {log.threads.size ? (
+              <div>
+                <dt>{t.dayThreads}</dt>
+                <dd className={styles.dayLinks}>
+                  {[...log.threads.values()].map((x) => (
+                    <Link key={x.id} href={`/app/me/t/${x.id}`}>
+                      <span className={styles.threadKind}>{t.threadKinds[x.kind]}</span>
+                      {x.kind === "side" ? <span className="t-en">{x.title}</span> : x.title}
+                      <Icon name="arrow" size={14} />
+                    </Link>
+                  ))}
+                </dd>
+              </div>
+            ) : null}
+            {log.said ? (
+              <div>
+                <dt>{t.daySaid}</dt>
+                <dd>{log.said}</dd>
+              </div>
+            ) : null}
+          </dl>
+        ) : (
+          <p className={page.note}>{t.dayNone}</p>
+        )}
+      </section>
     </>
   );
 }

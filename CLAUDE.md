@@ -77,9 +77,11 @@ borrows their look, their accounts and their way of keeping a record.
   on as a conversation. `/app/me` 自分: looking back only, short enough to see at once: the learner's own counts in one
   quiet row (never compared), then one view at a time as tabs, each with a line saying what it holds and only its first
   few items until more are asked for: できたこと (first), 表現 (grouped by what the learner did with each: 自分から使った,
-  気にとめた (opened or used with help), 出会っただけ as chips), 日本語 (the Japanese parts), 会話, 日ごと. Settings and
-  書き出す are not on it: 設定 at the right of its bar. `/app/me/t/[id]` a conversation looked back on and carried on;
-  `/app/me/settings` 設定 (sound, speed, translations, the account, the record: `/app/me/export` and clearing it). `/login`: ことのあめのアカウントでつなぐ.
+  気にとめた (opened or used with help), 出会っただけ as chips), 日本語 (the Japanese parts), 会話, 日ごと (a month's
+  calendar, days with a record dotted and nothing more, the picked day's record under it). Settings and 書き出す are not
+  on it: 設定 at the right of its bar. `/app/me/t/[id]` a conversation looked back on and carried on;
+  `/app/me/settings` 設定 (sound, speed, translations, the account, the record: `/app/me/export` and clearing it).
+  `/login`: ことのあめのアカウントでつなぐ.
   ことのあめでつなぐ (`src/lib/connect.ts`): off to ことのあめ's `/connect` (log in or sign up there), back to `/login`
   with a one-time token in the fragment, spent with `verifyOtp` (`signInWithKotonoame`) only when the random state kept
   on this device before leaving comes back with it (a link carrying someone else's token cannot sign the learner in).
