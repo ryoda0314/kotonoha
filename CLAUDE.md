@@ -77,6 +77,9 @@ borrows their look, their accounts and their way of keeping a record.
   on as a conversation. `/app/me` 自分: できたこと, counts (their own, never compared), and four views (expressions,
   Japanese parts, conversations, days); `/app/me/t/[id]` a conversation looked back on and carried on; `/app/me/export`;
   `/app/me/settings` (sound, speed, translations, the account, clearing the record). `/login`: ことのあめのアカウントでつなぐ.
+  ことのあめでつなぐ (`src/lib/connect.ts`): off to ことのあめ's `/connect` (log in or sign up there), back to `/login`
+  with a one-time token in the fragment, spent with `verifyOtp` (`signInWithKotonoame`) only when the random state kept
+  on this device before leaving comes back with it (a link carrying someone else's token cannot sign the learner in).
 - `_parts/ExprHost.tsx`: one sheet over any screen for an expression (a prepared one: はたらき, ほかの言い方 from its
   near-intent groups, 別の場面で, where else it appears; a phrase the AI found: its uses, made once) and これで言ってみる,
   a side conversation (`side` thread from that place) that leaves the screen underneath as it was.
