@@ -1,8 +1,8 @@
 // Voices every prepared line (src/content) in its speaker's voice and keeps the clips in public/audio, named by line id
 // and a hash of voice and text: a line whose text or voice changes gets a new clip, and the old one is removed once
-// nothing points to it. OpenAI voices come from OpenAI's speech model; Google voices ("google:Puck") from Gemini on
-// Vertex AI, tidied, checked for pace and encoded as MP3 (src/lib/tts.ts). src/content/audio.json maps each line id to
-// its clip; a line not voiced yet keeps its old clip, or plays in the browser's voice.
+// nothing points to it. Every voice is a Google one ("google:Puck"): Gemini on Vertex AI, tidied, checked for pace and
+// encoded as MP3 (src/lib/tts.ts). src/content/audio.json maps each line id to its clip; a line not voiced yet keeps its
+// old clip, or plays in the browser's voice.
 //   node --env-file=.env.local scripts/generate-audio.mjs [--dry-run]
 // A clip's name also carries VOICING (src/lib/speech.ts): change it when the voicing itself changes.
 // When Google's quota keeps refusing it stops politely; the same command later carries on where it stopped.
@@ -10,7 +10,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { allLines } from "../src/content/index.ts";
 import { VOICING } from "../src/lib/speech.ts";
-import { isGoogle, isQuota, speak } from "../src/lib/tts.ts";
+import { isQuota, speak } from "../src/lib/tts.ts";
 
 const DIR = "public/audio";
 const MANIFEST = "src/content/audio.json";
@@ -22,12 +22,12 @@ export const clipName = (id, voice, text) =>
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-/** A prepared line in exactly its own voice (never a fallback): retried while a quota or the network refuses. */
+/** A prepared line in exactly its own voice: retried while a quota or the network refuses. */
 async function voiced(text, voice) {
   for (let attempt = 1; ; attempt++) {
     try {
-      // A Google take is made again (up to three) when its pace is off.
-      return (await speak(text, voice, { tries: isGoogle(voice) ? 3 : 1 })).mp3;
+      // A take is made again (up to three) when its pace is off.
+      return (await speak(text, voice, { tries: 3 })).mp3;
     } catch (err) {
       const msg = String(err?.message ?? err);
       if (isQuota(err) && attempt < 12) {
@@ -50,8 +50,7 @@ const todo = lines.filter(({ line, voice }) => {
   const name = clipName(line.id, voice, line.text);
   return manifest[line.id] !== name || !existsSync(`${DIR}/${name}`);
 });
-const google = todo.filter(({ voice }) => isGoogle(voice)).length;
-console.log(`${lines.length} lines, ${todo.length} to voice (${google} in Google voices)`);
+console.log(`${lines.length} lines, ${todo.length} to voice`);
 if (dryRun) process.exit(0);
 
 let done = 0;

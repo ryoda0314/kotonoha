@@ -1,17 +1,11 @@
 // How English is voiced, the same for the prepared lines (scripts/generate-audio.mjs) and for what the app's AI
-// writes (/api/say), so a partner sounds the same in a scene and in a conversation. A voice is an OpenAI voice by its
-// name ("marin") or a Google one as "google:<Gemini voice>" (src/lib/tts.ts).
-export const TTS_MODEL = "gpt-4o-mini-tts";
+// writes (/api/say), so a partner sounds the same in a scene and in a conversation. Every voice is a Google one,
+// "google:<Gemini voice>" (src/lib/tts.ts).
 
 // Part of every clip's name (scripts/generate-audio.mjs). Clips are cached as immutable by name, so when the way lines
 // are voiced changes (2: both providers' speech tidied, src/lib/pcm.ts), this changes, every name changes, and every
 // line is voiced again instead of a new sound hiding behind an old name.
 export const VOICING = "2";
-
-// A natural, everyday pace. Asking for a pace "for learners" overshoots into slow, careful speech; the learner can
-// slow a clip down on the device instead.
-export const TTS_INSTRUCTIONS =
-  "Speak as a university student chatting with a friend: relaxed, warm and clear, at a natural everyday pace. Read only the text.";
 
 // Google voices: Gemini 3.1 Flash TTS on Vertex AI, in ことのあめ's project. Its quota is per model, so it is not the one
 // ことのあめ's live voice (2.5 Pro) or ことのおと's scripts (2.5 Flash) draw on. Of the three it was also the quickest

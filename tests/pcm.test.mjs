@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { pcmToSamples, rateOf, tidy, toMp3, wordsPerSecond } from "../src/lib/pcm.ts";
-import { fallbackOf, PARTNERS, VOICES } from "../src/content/index.ts";
+import { PARTNERS, VOICES } from "../src/content/index.ts";
 
 const RATE = 24000;
 
@@ -51,10 +51,8 @@ test("pace counts words", () => {
   assert.equal(wordsPerSecond("Want to grab coffee after class?", 2), 3);
 });
 
-test("every Google voice has an OpenAI voice to fall back on, and only those", () => {
-  for (const p of Object.values(PARTNERS)) {
-    if (p.voice.startsWith("google:")) assert.ok(p.fallback && !p.fallback.startsWith("google:"), p.id);
-    else assert.equal(fallbackOf(p.voice), null);
-  }
-  assert.ok(VOICES.some((v) => v.startsWith("google:")));
+test("every voice is a Google one, each friend's their own, and none falls back on another provider", () => {
+  for (const v of VOICES) assert.ok(v.startsWith("google:"), v);
+  assert.equal(new Set(VOICES).size, VOICES.length);
+  for (const p of Object.values(PARTNERS)) assert.equal("fallback" in p, false, p.id);
 });

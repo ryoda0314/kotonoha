@@ -194,7 +194,7 @@ function SceneView({ scene, state }: { scene: Scene; state: State }) {
       />
 
       <Sheet open={choosing} onClose={() => setChoosing(false)} closeLabel={ja.common.close} title={<p className={styles.sheetTitle}>{t.chooseTitle}</p>}>
-        {(Object.keys(THEMES) as ThemeId[]).map((theme) => (
+        {(Object.keys(THEMES) as ThemeId[]).filter((theme) => SCENES.some((s) => s.theme === theme)).map((theme) => (
           <section key={theme} className={styles.pick}>
             <h3 className="label">{THEMES[theme]}</h3>
             <ul className={page.rows}>

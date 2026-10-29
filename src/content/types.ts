@@ -2,7 +2,7 @@
 // 場面で言う and the frames of 話す. Everything here is written ahead and checked (tests/content.test.mjs); the app's
 // AI only corrects and replies (CONCEPT.md).
 
-export type ThemeId = "plan" | "make" | "decide";
+export type ThemeId = "plan" | "make" | "decide" | "chat";
 export type PartnerId = "mia" | "leo" | "sam" | "nora";
 /** The voice of a line: one of the partners, or "you" for things the learner might say (a scene's samples). */
 export type SpeakerId = PartnerId | "you";
@@ -71,9 +71,7 @@ export type Partner = {
   /** The name in katakana, for Japanese sentences. */
   kana: string;
   about: string;
-  /** An OpenAI voice ("marin") or a Google one ("google:Puck"). */
+  /** A Google (Gemini) voice: "google:Puck". */
   voice: string;
-  /** For a Google voice: the OpenAI voice that speaks when Google cannot. */
-  fallback?: string;
   persona: string;
 };

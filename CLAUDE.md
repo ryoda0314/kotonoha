@@ -22,14 +22,16 @@ borrows their look, their accounts and their way of keeping a record.
   app's tables, and do not create test users there (a trigger of the old app fires on `auth.users`).
 - The prepared English is TypeScript data in `src/content/` (typed, checked by `tests/content.test.mjs`); its audio is
   static MP3 in `public/audio`, named by line id and a hash of voice and text, listed in `src/content/audio.json`.
-- Voices (`src/content/cast.ts`, `src/lib/tts.ts`): Mia, Sam and the learner's samples speak in OpenAI's voices
-  (gpt-4o-mini-tts); Leo and Nora in Google's (`google:Puck`, `google:Kore`: Gemini TTS on Vertex AI, ことのあめ's project
-  and service account, `gemini-3.1-flash-tts-preview`, a model whose per-model quota neither ことのあめ's live 2.5 Pro
-  voice nor ことのおと's 2.5 Flash scripts use). A Google take is tidied as ことのおと's clips are (`src/lib/pcm.ts`:
-  leading silence cut to 20 ms, faded end, levelled) and made again when its pace is outside `PACE_RANGE`. A Google
-  voice keeps its old OpenAI voice as `fallback`, which speaks a reply when Google refuses; prepared lines never fall
-  back (a clip is named for its voice). OpenAI speech comes back as PCM and is tidied the same way, so the two kinds
-  sound equally loud (all four voices within 0.2 dB) and start at once. A reply is voiced sentence by sentence
+- Voices (`src/content/cast.ts`, `src/lib/tts.ts`): every voice is Google's (Gemini TTS on Vertex AI, ことのあめ's
+  project and service account, `gemini-3.1-flash-tts-preview`, a model whose per-model quota neither ことのあめ's live
+  2.5 Pro voice nor ことのおと's 2.5 Flash scripts use): Mia `google:Sulafat`, Sam `google:Umbriel`, Leo `google:Puck`,
+  Nora `google:Kore`, and what the learner might say or did say (a scene's samples, their corrected sentence)
+  `google:Zephyr`. The maker asked that no GPT (OpenAI) voice be used, so none speaks, not even when Google refuses: the
+  page then reads a reply in the browser's own voice. A take is tidied as ことのおと's clips are (`src/lib/pcm.ts`:
+  leading silence cut to 20 ms, faded end, levelled) and made again when its pace is outside `PACE_RANGE`. Gemini now
+  and then adds a word of its own ("Well", "Hmm") to a chatty line: `scripts/check-audio.mjs` hears the clips back and
+  lists those that do not say their text word for word (delete such a clip and voice it again). A reply is voiced
+  sentence by sentence
   (`parts`, each signed; `sentencesOf` in `text.ts`), all asked for at once and played in turn: Gemini needs 6 s or more
   for a whole reply, the first sentence is heard after about 3 s. A clip's name carries `VOICING` (`speech.ts`); clips
   are cached as immutable, so bump it whenever the voicing itself changes.
@@ -40,7 +42,7 @@ borrows their look, their accounts and their way of keeping a record.
     effort "none" changed the learner's meaning (夜 became "tonight" when the plan was for tomorrow).
   - `/api/other`: ほかの言い方 for a corrected sentence, or 別の場面で for a phrase the AI found; only when opened, kept in
     the record so each is asked once.
-  - `/api/say`: voices English the AI wrote in the partner's voice (OpenAI or Google, see above), only with the
+  - `/api/say`: voices English the AI wrote in the partner's voice (Gemini, see above), only with the
     signature the server gave that text (`src/lib/sign.ts`), so it cannot voice anything else. Prepared lines never come
     here.
   - `/api/hear`: what the learner said aloud (gpt-4o-transcribe, English with Japanese mixed in), as text to check before
@@ -70,11 +72,12 @@ borrows their look, their accounts and their way of keeping a record.
 
 ## The app
 
-- `/` intro (static). `/app` 出会う (`_meet/Meet.tsx`): a conversation falls in line by line with its voices; expressions
-  are lit only after it has fallen (and violet if noticed before); chips open them. `/app/talk` 話す: four frames, each a
-  partner with their own plans, then a conversation with まとめ. `/app/scene` 場面で言う: the partner's line and the
-  learner's circumstances (never a finished Japanese answer); samples only when opened; after answering the scene goes
-  on as a conversation. `/app/me` 自分: looking back only, short enough to see at once: the learner's own counts in one
+- `/` intro (static). `/app` 出会う (`_meet/Meet.tsx`): a conversation falls in line by line with its voices (a long one is
+  followed down the screen while the learner keeps up); expressions are lit only after it has fallen (and violet if
+  noticed before); chips open them (no list when it holds none). `/app/talk` 話す: four frames, each a partner with
+  their own plans, then a conversation with まとめ. `/app/scene` 場面で言う: the partner's line and the learner's
+  circumstances (never a finished Japanese answer); samples only when opened; after answering the scene goes on as a
+  conversation. `/app/me` 自分: looking back only, short enough to see at once: the learner's own counts in one
   quiet row (never compared), then one view at a time as tabs, each with a line saying what it holds and only its first
   few items until more are asked for: できたこと (first), 表現 (grouped by what the learner did with each: 自分から使った,
   気にとめた (opened or used with help), 出会っただけ as chips), 日本語 (the Japanese parts), 会話, 日ごと (a month's
@@ -99,12 +102,14 @@ borrows their look, their accounts and their way of keeping a record.
 ## Content (`src/content`)
 
 - `expressions.ts` (32, each with `core`, a plain `label`, what it `does`, near-intent `groups`, three `examples` with
-  what changed), `dialogues.ts` (12 for 出会う), `scenes.ts` (12, with samples and the partner's `brief`), `frames.ts`
-  (4 for 話す), `cast.ts` (the four friends and their voices). Marks name an expression and the exact text of its fixed
+  what changed), `dialogues.ts` (15 for 出会う: 12 around a plan, something made or a choice, and 3 of ふだんの話,
+  everyday talk written as a conversation first and marked only where an expression turns up of itself), `scenes.ts`
+  (12, with samples and the partner's `brief`), `frames.ts` (4 for 話す), `cast.ts` (the four friends and their voices). Marks name an expression and the exact text of its fixed
   words in the line. Every expression must turn up in two or more conversations or scenes.
 - After changing lines or voices: `node --env-file=.env.local scripts/generate-audio.mjs` (only new or changed lines are
   voiced; when Google's quota keeps refusing it stops, and the same command carries on later; old
-  clips are removed), then `npm test`.
+  clips are removed), then `node --env-file=.env.local scripts/check-audio.mjs [id prefix ...]` (listen to what it lists,
+  delete a wrong clip and voice it again), then `npm test`.
 
 ## The promotional film (`promo/`)
 
@@ -127,6 +132,7 @@ borrows their look, their accounts and their way of keeping a record.
 - `npm run dev` / `npm run build` / `npm run lint` / `npm test` (node:test, `tests/*.test.mjs`)
 - `npx tsc --noEmit` (run `npx next typegen` first after adding routes)
 - `node --env-file=.env.local scripts/generate-audio.mjs [--dry-run]`
+- `node --env-file=.env.local scripts/check-audio.mjs [id prefix ...]`: the clips heard back, those not saying their text
 - `node --env-file=../polylinga/.env.local ../polylinga/scripts/migrate.mjs supabase/migrations/<file>.sql`: apply one
   migration to ことのあめ's database, in a transaction (ことのあめ's runner and connection settings).
 

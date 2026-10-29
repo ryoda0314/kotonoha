@@ -17,6 +17,11 @@
   text-decoration: underline dotted; text-underline-offset: 0.3em;
 }
 @keyframes fall { from { opacity: 0; transform: translateY(-18px); } }
+/* A line brought into view as it falls in (Meet.tsx) stops clear of the tab bar fixed at the bottom of a phone. */
+.line { scroll-margin-bottom: calc(55px + var(--nav-bottom) + 16px); }
+@media (min-width: 720px) {
+  .line { scroll-margin-bottom: 16px; }
+}
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {

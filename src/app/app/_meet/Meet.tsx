@@ -51,8 +51,22 @@ function DialogueView({ dialogue, state }: { dialogue: Dialogue; state: State })
   const [choosing, setChoosing] = useState(false);
   const done = shown >= dialogue.lines.length;
   const finished = useRef(before);
+  const list = useRef<HTMLOListElement>(null);
 
   useEffect(() => () => stop(), []);
+
+  // A long conversation runs past the screen: while it plays, the line that has just fallen in is brought into view, as
+  // long as the learner is following (the line before it is on the screen). One who went back up to read stays there.
+  useEffect(() => {
+    if (!playing || shown < 2) return;
+    const prev = list.current?.children[shown - 2];
+    const last = list.current?.children[shown - 1];
+    if (!prev || !last) return;
+    const r = prev.getBoundingClientRect();
+    if (r.bottom > 0 && r.top < window.innerHeight) {
+      last.scrollIntoView({ block: "nearest", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    }
+  }, [shown, playing]);
 
   // Once all of it has fallen, it counts as met (its expressions too).
   useEffect(() => {
@@ -105,7 +119,7 @@ function DialogueView({ dialogue, state }: { dialogue: Dialogue; state: State })
         {shown === 0 ? <p className={styles.hint}>{t.lead}</p> : null}
       </section>
 
-      <ol className={styles.lines}>
+      <ol ref={list} className={styles.lines}>
         {dialogue.lines.slice(0, shown).map((line) => {
           const marks: Highlight[] = done
             ? (line.marks ?? []).flatMap((m) => {
@@ -144,28 +158,31 @@ function DialogueView({ dialogue, state }: { dialogue: Dialogue; state: State })
 
       {done ? (
         <>
-          <section className={page.section}>
-            <h3 className={page.h2}>{t.exprs}</h3>
-            <p className={page.note}>{t.exprsNote}</p>
-            <div className={styles.chips}>
-              {exprs.map((id) => {
-                const e = exprById(id)!;
-                const line = lineOf(id);
-                const m = line.marks!.find((x) => x.expr === id)!;
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    className={noticed(state, id, since) ? `${styles.chip} ${styles.again}` : styles.chip}
-                    onClick={() => open({ key: id, from, partner: line.who as keyof typeof PARTNERS, text: line.text, range: markRange(line, m) })}
-                  >
-                    <span className="t-en">{e.form}</span>
-                    <span className={styles.chipLabel}>{e.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
+          {/* A conversation of everyday talk may hold none of the expressions: then there is nothing to list. */}
+          {exprs.length ? (
+            <section className={page.section}>
+              <h3 className={page.h2}>{t.exprs}</h3>
+              <p className={page.note}>{t.exprsNote}</p>
+              <div className={styles.chips}>
+                {exprs.map((id) => {
+                  const e = exprById(id)!;
+                  const line = lineOf(id);
+                  const m = line.marks!.find((x) => x.expr === id)!;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      className={noticed(state, id, since) ? `${styles.chip} ${styles.again}` : styles.chip}
+                      onClick={() => open({ key: id, from, partner: line.who as keyof typeof PARTNERS, text: line.text, range: markRange(line, m) })}
+                    >
+                      <span className="t-en">{e.form}</span>
+                      <span className={styles.chipLabel}>{e.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          ) : null}
           <div className={page.actions}>
             <button type="button" className="btn" onClick={next}>
               {t.next}
@@ -179,7 +196,7 @@ function DialogueView({ dialogue, state }: { dialogue: Dialogue; state: State })
       ) : null}
 
       <Sheet open={choosing} onClose={() => setChoosing(false)} closeLabel={ja.common.close} title={<p className={styles.sheetTitle}>{t.chooseTitle}</p>}>
-        {(Object.keys(THEMES) as ThemeId[]).map((theme) => (
+        {(Object.keys(THEMES) as ThemeId[]).filter((theme) => DIALOGUES.some((d) => d.theme === theme)).map((theme) => (
           <section key={theme} className={styles.pick}>
             <h3 className="label">{THEMES[theme]}</h3>
             <ul className={page.rows}>

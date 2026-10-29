@@ -1,11 +1,11 @@
-import { fallbackOf, GROUPS, PARTNERS, THEMES, VOICES, voiceOf, YOU_VOICE } from "./cast.ts";
+import { GROUPS, PARTNERS, THEMES, VOICES, voiceOf, YOU_VOICE } from "./cast.ts";
 import { DIALOGUES } from "./dialogues.ts";
 import { EXPRESSIONS } from "./expressions.ts";
 import { FRAMES } from "./frames.ts";
 import { SCENES } from "./scenes.ts";
 import type { Dialogue, Expr, Frame, Line, Mark, PartnerId, Scene, SpeakerId } from "./types.ts";
 
-export { DIALOGUES, EXPRESSIONS, fallbackOf, FRAMES, GROUPS, PARTNERS, SCENES, THEMES, VOICES, voiceOf, YOU_VOICE };
+export { DIALOGUES, EXPRESSIONS, FRAMES, GROUPS, PARTNERS, SCENES, THEMES, VOICES, voiceOf, YOU_VOICE };
 export type * from "./types.ts";
 
 const byId = <T extends { id: string }>(list: T[]) => new Map(list.map((x) => [x.id, x]));
