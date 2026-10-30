@@ -2,7 +2,7 @@
 // and a hash of voice and text: a line whose text or voice changes gets a new clip, and the old one is removed once
 // nothing points to it. Every voice is a Google one ("google:Puck"): Gemini on Vertex AI, tidied, checked for pace and
 // encoded as MP3 (src/lib/tts.ts). src/content/audio.json maps each line id to its clip; a line not voiced yet keeps its
-// old clip, or plays in the browser's voice.
+// old clip, or is silent.
 //   node --env-file=.env.local scripts/generate-audio.mjs [--dry-run]
 // A clip's name also carries VOICING (src/lib/speech.ts): change it when the voicing itself changes.
 // When Google's quota keeps refusing it stops politely; the same command later carries on where it stopped.

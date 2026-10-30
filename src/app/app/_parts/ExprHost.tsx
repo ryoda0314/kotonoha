@@ -50,52 +50,86 @@ function sideThread(state: State, key: string, from: Origin) {
   );
 }
 
-export function ExprHost({ children }: { children: ReactNode }) {
-  const [target, setTarget] = useState<ExprTarget | null>(null);
-  const [trying, setTrying] = useState(false);
-  const open = useCallback((t: ExprTarget) => {
-    setTarget(t);
-    setTrying(false);
-  }, []);
-  const close = useCallback(() => {
-    setTarget(null);
-    setTrying(false);
-  }, []);
+/** One layer of the sheet: an expression open, and whether the learner is trying it (これで言ってみる). */
+type Layer = { target: ExprTarget; trying: boolean };
 
-  // Opening an expression is noticing it: kept, so it can come back.
-  useEffect(() => {
-    if (!target) return;
-    commit((s) => recordLooked(s, target.key, { kind: target.from.kind, id: target.from.id }, s.exprs[target.key]));
-  }, [target]);
+/** Opening an expression is noticing it: kept, so it can come back. Going back to one is not opening it again. */
+function notice(t: ExprTarget) {
+  commit((s) => recordLooked(s, t.key, { kind: t.from.kind, id: t.from.id }, s.exprs[t.key]));
+}
+
+/** What an expression is called: a prepared one's form, or what the AI said for a phrase it found. */
+function formOf(key: string, state: State | null): string {
+  return exprById(key)?.form ?? state?.exprs[key]?.form ?? key.replace(/^p:/, "");
+}
+
+export function ExprHost({ children }: { children: ReactNode }) {
+  // The sheet keeps what was open under what is open now (a phrase opened from a side conversation, another way of
+  // saying): closing takes off the top only, so the learner is back where they were in the one underneath (its side
+  // conversation, the sentence half written), and from the last one back on the screen itself.
+  const [layers, setLayers] = useState<Layer[]>([]);
+  const open = useCallback((t: ExprTarget, trying = false) => {
+    notice(t);
+    setLayers((ls) => [...ls, { target: t, trying }]);
+  }, []);
+  const back = useCallback(() => setLayers((ls) => ls.slice(0, -1)), []);
+  const closeAll = useCallback(() => setLayers([]), []);
+  const tryTop = useCallback(() => setLayers((ls) => (ls.length ? [...ls.slice(0, -1), { ...ls[ls.length - 1], trying: true }] : ls)), []);
 
   const state = useRecord();
-  const expr = target ? exprById(target.key) : undefined;
-  const log = target && state ? state.exprs[target.key] : undefined;
-  const form = expr?.form ?? log?.form ?? target?.key.replace(/^p:/, "") ?? "";
+  const top = layers.at(-1);
+  const under = layers.at(-2);
+  const expr = top ? exprById(top.target.key) : undefined;
+  const log = top && state ? state.exprs[top.target.key] : undefined;
+  const form = top ? formOf(top.target.key, state) : "";
   const label = expr?.label ?? log?.label ?? "";
+  const backTo = under ? formOf(under.target.key, state) : null;
+  // Each layer is its own panel (its own sentence being written), not the one before with another expression.
+  const layerKey = top ? `${layers.length}:${top.target.key}:${top.target.from.id}` : "";
 
   return (
     <Open.Provider value={open}>
       {children}
       <Sheet
-        open={Boolean(target)}
-        onClose={close}
-        closeLabel={ja.common.close}
+        open={Boolean(top)}
+        onClose={back}
+        closeLabel={backTo ? ja.expr.backTo(backTo) : ja.common.close}
         title={
           <>
-            {trying ? <p className={styles.kicker}>{ja.try.title}</p> : null}
+            {backTo ? (
+              <button type="button" className={styles.back} onClick={back} aria-label={ja.expr.backTo(backTo)}>
+                <Icon name="back" size={16} />
+                <span className="t-en">{backTo}</span>
+              </button>
+            ) : null}
+            {top?.trying ? <p className={styles.kicker}>{ja.try.title}</p> : null}
             <p className={`${styles.form} t-en`}>{form}</p>
             {label ? <p className={styles.label}>{label}</p> : null}
           </>
         }
       >
-        {target && state ? (
-          trying ? (
-            <TryPanel target={target} state={state} onSwitch={(key) => setTarget({ ...target, key, text: undefined, range: null })} onDone={close} />
+        {top && state ? (
+          top.trying ? (
+            <TryPanel
+              key={layerKey}
+              target={top.target}
+              state={state}
+              backTo={backTo}
+              onSwitch={(key) => open({ ...top.target, key, text: undefined, range: null }, true)}
+              onDone={back}
+            />
           ) : expr ? (
-            <ExprPanel expr={expr} target={target} state={state} onOpen={(key) => setTarget({ ...target, key, text: undefined, range: null })} onTry={() => setTrying(true)} onLeave={close} />
+            <ExprPanel
+              key={layerKey}
+              expr={expr}
+              target={top.target}
+              state={state}
+              onOpen={(key) => open({ ...top.target, key, text: undefined, range: null })}
+              onTry={tryTop}
+              onLeave={closeAll}
+            />
           ) : (
-            <PhrasePanel target={target} state={state} onTry={() => setTrying(true)} />
+            <PhrasePanel key={layerKey} target={top.target} state={state} onTry={tryTop} />
           )
         ) : null}
       </Sheet>
@@ -299,11 +333,14 @@ function PhrasePanel({ target, state, onTry }: { target: ExprTarget; state: Stat
 function TryPanel({
   target,
   state,
+  backTo,
   onSwitch,
   onDone,
 }: {
   target: ExprTarget;
   state: State;
+  /** The expression open underneath, which 元に戻る goes back to (null: back to the screen itself). */
+  backTo: string | null;
   onSwitch: (key: string) => void;
   onDone: () => void;
 }) {
@@ -344,7 +381,7 @@ function TryPanel({
       <Composer draftKey={`side:${target.key}:${target.from.id}`} onSend={onSend} busy={busy} inSheet />
       <div className={styles.footQuiet}>
         <button type="button" className="btn-quiet" onClick={onDone}>
-          {ja.try.done}
+          {backTo ? ja.expr.backTo(backTo) : ja.try.done}
         </button>
       </div>
     </>

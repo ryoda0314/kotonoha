@@ -26,15 +26,15 @@ borrows their look, their accounts and their way of keeping a record.
   project and service account, `gemini-3.1-flash-tts-preview`, a model whose per-model quota neither ことのあめ's live
   2.5 Pro voice nor ことのおと's 2.5 Flash scripts use): Mia `google:Sulafat`, Sam `google:Umbriel`, Leo `google:Puck`,
   Nora `google:Kore`, and what the learner might say or did say (a scene's samples, their corrected sentence)
-  `google:Zephyr`. The maker asked that no GPT (OpenAI) voice be used, so none speaks, not even when Google refuses: the
-  page then reads a reply in the browser's own voice. A take is tidied as ことのおと's clips are (`src/lib/pcm.ts`:
-  leading silence cut to 20 ms, faded end, levelled) and made again when its pace is outside `PACE_RANGE`. Gemini now
-  and then adds a word of its own ("Well", "Hmm") to a chatty line: `scripts/check-audio.mjs` hears the clips back and
-  lists those that do not say their text word for word (delete such a clip and voice it again). A reply is voiced
-  sentence by sentence
-  (`parts`, each signed; `sentencesOf` in `text.ts`), all asked for at once and played in turn: Gemini needs 6 s or more
-  for a whole reply, the first sentence is heard after about 3 s. A clip's name carries `VOICING` (`speech.ts`); clips
-  are cached as immutable, so bump it whenever the voicing itself changes.
+  `google:Zephyr`. The maker asked for Gemini alone in the whole app: no GPT (OpenAI) voice and no browser voice speaks,
+  not even when Google refuses (that sentence is then not voiced). A take is tidied as ことのおと's clips are
+  (`src/lib/pcm.ts`: leading silence cut to 20 ms, faded end, levelled) and made again when its pace is outside
+  `PACE_RANGE`. Gemini now and then adds a word of its own ("Well", "Hmm") to a chatty line: `scripts/check-audio.mjs`
+  hears the clips back and lists those that do not say their text word for word (delete such a clip and voice it
+  again). A reply is voiced sentence by sentence (`parts`, each signed; `sentencesOf` in `text.ts`), all asked for at
+  once and played in turn: Gemini needs 6 s or more for a whole reply, the first sentence is heard after about 3 s. A
+  clip's name carries `VOICING` (`speech.ts`); clips are cached as immutable, so bump it whenever the voicing itself
+  changes.
 - AI is OpenAI, server-side only (`src/lib/ai.ts`), with no sign-in, so every route is limited per address and per server
   instance (`src/lib/limits.ts`, as ことのおと's `/api/hear`):
   - `/api/turn`: one sentence of the learner's. One call (`TALK_MODEL`, default gpt-5.5 at low reasoning effort) both
@@ -90,14 +90,18 @@ borrows their look, their accounts and their way of keeping a record.
   on this device before leaving comes back with it (a link carrying someone else's token cannot sign the learner in).
 - `_parts/ExprHost.tsx`: one sheet over any screen for an expression (a prepared one: はたらき, ほかの言い方 from its
   near-intent groups, 別の場面で, where else it appears; a phrase the AI found: its uses, made once) and これで言ってみる,
-  a side conversation (`side` thread from that place) that leaves the screen underneath as it was.
+  a side conversation (`side` thread from that place) that leaves the screen underneath as it was. What is opened from
+  inside the sheet (a phrase in a side conversation, another way of saying) lies over it as a layer: closing (×, Esc,
+  元に戻る, the「‹ 前の表現」above the title) takes off the top one only, back to the one underneath with its side
+  conversation and draft as they were; after the last, the screen itself.
 - `_parts/Conversation.tsx`: turns. The learner's shows the corrected sentence with changes marked; 直したところ,
   日本語で補ったところ, フレーズ and ほかの言い方 are folded under one line, so the conversation can just go on.
   A sentence whose answer never came back (the page was left) can be sent again; a question back from the AI offers its
   readings. `_parts/Composer.tsx`: the field (draft kept per place), the microphone, send. Its buttons keep the focus in
   the field: on a phone a blur first swaps the tab bar and the composer, and the press would land elsewhere.
-- `src/components/audio.ts`: one sound at a time, prepared clips by id, AI text through `/api/say` (fetched once), the
-  browser's voice when nothing else plays. `recorder.ts`: the microphone (AudioWorklet), stops itself after a pause.
+- `src/components/audio.ts`: one sound at a time, prepared clips by id, AI text through `/api/say` (fetched once), and
+  nothing else: a sentence neither can play stays silent, and `Speak` shows no button where there is nothing to play.
+  `recorder.ts`: the microphone (AudioWorklet), stops itself after a pause.
 
 ## Content (`src/content`)
 

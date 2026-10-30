@@ -135,6 +135,7 @@ export const ja = {
     usesFailed: "いまは出せませんでした。",
     noPlaces: "この表現は、あなたの文から見つかったものです。",
     from: "見つかった文",
+    backTo: (form: string) => `「${form}」に戻る`,
   },
 
   try: {

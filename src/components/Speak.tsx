@@ -1,6 +1,6 @@
 "use client";
 
-import { play, playAll, soundKey, stop, usePlaying, type Item, type Sound } from "./audio";
+import { play, playable, playAll, soundKey, stop, usePlaying, type Item, type Sound } from "./audio";
 import { Icon } from "./Icon";
 import styles from "./Speak.module.css";
 
@@ -23,6 +23,9 @@ export function Speak({
   const keys = sequence?.length ? sequence.map((x) => soundKey(x.sound, x.text)) : [soundKey(sound, text)];
   const now = usePlaying();
   const playing = now !== null && keys.includes(now);
+  // Only Gemini's voices play (audio.ts): with no clip and no signature (a reply kept from before replies were signed)
+  // there is nothing to hear, so no button.
+  if (!(sequence?.length ? sequence.some((x) => playable(x.sound)) : playable(sound))) return null;
   return (
     <button
       type="button"

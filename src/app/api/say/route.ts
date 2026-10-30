@@ -5,7 +5,7 @@ import { speak } from "@/lib/tts";
 
 // Voices English the app's AI wrote (a partner's reply, a corrected sentence, other ways of saying), only when it
 // comes with the signature the server gave it. Prepared lines are static files (public/audio) and never come here.
-// Every voice speaks through Gemini (src/lib/tts.ts); when Google refuses, the page uses the browser's own voice.
+// Every voice speaks through Gemini (src/lib/tts.ts); when Google refuses, the sentence is not voiced at all.
 //   POST { text, sig, voice }  →  audio/mpeg
 
 const MAX = 600;
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       if (cache.size > KEPT) cache.delete(cache.keys().next().value as string);
     } catch (err) {
       console.error("[say]", err instanceof Error ? err.message : err);
-      // The page falls back to the browser's own voice.
+      // The page stays silent for this sentence (no other voice stands in for Gemini).
       return Response.json({ error: "failed" }, { status: 502 });
     }
   }

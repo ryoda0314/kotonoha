@@ -1,8 +1,9 @@
 "use client";
 
 // Playback, one sound at a time across the app. A prepared line plays its clip (public/audio, by line id); English the
-// app's AI wrote plays through /api/say with the signature it came with (fetched once, kept for the session). Either
-// way, when nothing can be played the browser's own voice reads it.
+// app's AI wrote plays through /api/say with the signature it came with (fetched once, kept for the session). Only
+// Gemini's voices are heard: when neither can play a sentence it stays silent, and the browser's own voice is never
+// used (the maker asked for Gemini alone).
 import { useSyncExternalStore } from "react";
 import manifest from "@/content/audio.json";
 import { choiceNow } from "./local";
@@ -94,31 +95,9 @@ function untilEnd(audio: HTMLAudioElement, mine: number): Promise<boolean> {
   });
 }
 
-function speakWithBrowser(text: string, mine: number): Promise<boolean> {
-  return new Promise((resolve) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return resolve(false);
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US";
-    u.rate = rate();
-    let settled = false;
-    const done = (ok: boolean) => {
-      if (settled) return;
-      settled = true;
-      clearInterval(check);
-      resolve(ok);
-    };
-    u.onend = () => done(true);
-    u.onerror = () => done(false);
-    const check = setInterval(() => {
-      if (turn !== mine) {
-        window.speechSynthesis.cancel();
-        done(false);
-      }
-    }, 100);
-    window.speechSynthesis.speak(u);
-    // Some browsers never say they have finished.
-    setTimeout(() => done(true), 4000 + text.length * 120);
-  });
+/** True when there is something to play: a prepared line's clip, or English the AI wrote with its signature. */
+export function playable(sound: Sound | null): boolean {
+  return Boolean(sound && ("line" in sound ? hasClip(sound.line) : sound.sig));
 }
 
 /** Call inside a tap: lets the page play sound from then on (mobile browsers ask for a tap first). */
@@ -132,16 +111,14 @@ export function unlock(): void {
 export function stop(): void {
   turn++;
   el?.pause();
-  if (typeof window !== "undefined") window.speechSynthesis?.cancel();
   setPlaying(null);
 }
 
-/** Plays one sentence to its end. False if it was stopped, replaced, or nothing could play it. */
+/** Plays one sentence to its end. False if it was stopped, replaced, or nothing could play it (then it stays silent). */
 export async function play(sound: Sound | null, text: string): Promise<boolean> {
   unlock();
   const mine = ++turn;
   el!.pause();
-  window.speechSynthesis?.cancel();
   const key = soundKey(sound, text);
   setPlaying(key);
   const src = await source(sound, text);
@@ -159,7 +136,6 @@ export async function play(sound: Sound | null, text: string): Promise<boolean> 
       ok = false;
     }
   }
-  if (!ok && turn === mine) ok = await speakWithBrowser(text, mine);
   if (turn === mine) setPlaying(null);
   return ok && turn === mine;
 }

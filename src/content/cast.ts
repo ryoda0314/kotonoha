@@ -2,8 +2,8 @@ import type { Partner, PartnerId, SpeakerId, ThemeId, GroupId } from "./types.ts
 
 // The four people the learner meets and talks with: friends at a university in Tokyo, from abroad, so English is what
 // they share. Every voice is one of Google's (Gemini TTS, src/lib/tts.ts), each told apart from the others: Mia's warm
-// and the highest, Sam's easy-going and the lowest, Leo's upbeat, Nora's firm. No OpenAI voice speaks, not even when
-// Google refuses (the browser's own voice does then). scripts/generate-audio.mjs and /api/say use the same voices.
+// and the highest, Sam's easy-going and the lowest, Leo's upbeat, Nora's firm. No other voice speaks, OpenAI's or the
+// browser's, not even when Google refuses. scripts/generate-audio.mjs and /api/say use the same voices.
 export const PARTNERS: Record<PartnerId, Partner> = {
   mia: {
     id: "mia",

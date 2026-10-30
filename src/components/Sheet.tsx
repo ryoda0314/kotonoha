@@ -22,17 +22,25 @@ export function Sheet({
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
+  // After every render, not only when `open` changes: the browser may shut the dialog itself (Escape pressed twice
+  // without a tap between), and a sheet of layers that only went back one must show again.
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
     if (open && !d.open) d.showModal();
     if (!open && d.open) d.close();
-  }, [open]);
+  });
   return (
     <dialog
       ref={ref}
       className={styles.sheet}
       onClose={onClose}
+      onCancel={(e) => {
+        // Escape: the page decides what closing means (a sheet of layers goes back one), not the browser, which would
+        // shut the dialog while the page still holds it open.
+        e.preventDefault();
+        onClose();
+      }}
       onClick={(e) => {
         // A press on the dimmed area outside the sheet closes it.
         if (e.target === e.currentTarget) onClose();
